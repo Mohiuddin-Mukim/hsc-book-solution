@@ -85,7 +85,6 @@ jobs:
       - name: Check Android
         working-directory: android
         run: |
-          chmod +x gradlew
-          ./gradlew testDebugUnitTest
-          ./gradlew lintDebug
-          ./gradlew assembleDebug
+          gradle testDebugUnitTest
+          gradle lintDebug
+          gradle assembleDebug
