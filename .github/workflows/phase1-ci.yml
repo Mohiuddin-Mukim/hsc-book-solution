@@ -40,7 +40,7 @@ jobs:
         with: {node-version: '22.16.0'}
       - name: Install dependencies
         working-directory: admin
-        run: npm install --no-audit --no-fund
+        run: npm install --legacy-peer-deps
       - name: Check admin
         working-directory: admin
         run: |
@@ -56,8 +56,10 @@ jobs:
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '17'}
       - uses: android-actions/setup-android@v3
-      - name: Install SDK
-        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Install SDK components
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with: {gradle-version: '8.13'}
       - name: Check Android
