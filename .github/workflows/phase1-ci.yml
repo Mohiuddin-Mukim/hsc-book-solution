@@ -56,10 +56,10 @@ jobs:
         with:
           node-version: '22.16.0'
 
-      # --force যুক্ত করা হয়েছে যেন Vite 8 এর কনফ্লিক্ট উপেক্ষা করে প্যাকেজ ইন্সটল হয়
+      # --legacy-peer-deps ব্যবহার করা হলো যেন Vite 8 এর কনফ্লিক্ট স্কিপ করে
       - name: Install dependencies
         working-directory: admin
-        run: npm install --force
+        run: npm install --legacy-peer-deps
 
       - name: Check admin
         working-directory: admin
@@ -79,7 +79,7 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # setup-android অ্যাকশনটি বাদ দেওয়া হয়েছে কারণ রানারে অলরেডি SDK 34 বিল্ট-ইন থাকে
+      # শুধুমাত্র setup-gradle ব্যবহার করা হচ্ছে, setup-android বাদ দেওয়া হয়েছে
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
