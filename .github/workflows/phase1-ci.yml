@@ -58,7 +58,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: admin
-        run: npm install --legacy-peer-deps
+        run: npm ci
 
       - name: Check admin
         working-directory: admin
