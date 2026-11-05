@@ -1,0 +1,1 @@
+export default function App(){return <main><h1>HSC Academic Solution</h1><p>Admin workspace — Phase 1 foundation.</p><p>Science first · Commerce-ready catalog architecture.</p><p>বাংলা / English · Light / Dark theme foundation</p></main>}
