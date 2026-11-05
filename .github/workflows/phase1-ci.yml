@@ -56,7 +56,6 @@ jobs:
         with:
           node-version: '22.16.0'
 
-      # --legacy-peer-deps ব্যবহার করা হলো যেন Vite 8 এর কনফ্লিক্ট স্কিপ করে
       - name: Install dependencies
         working-directory: admin
         run: npm install --legacy-peer-deps
@@ -79,7 +78,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # শুধুমাত্র setup-gradle ব্যবহার করা হচ্ছে, setup-android বাদ দেওয়া হয়েছে
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
