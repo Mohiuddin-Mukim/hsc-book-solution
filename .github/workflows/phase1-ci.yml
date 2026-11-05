@@ -1,9 +1,11 @@
 name: phase1-ci
+
 on:
   push:
     branches: [main, master]
   pull_request:
   workflow_dispatch:
+
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -23,12 +25,13 @@ jobs:
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '21', cache: maven}
       - name: Verify backend
-        working-directory: HSC_Academic_Solution_Phase_1/backend
+        working-directory: backend
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/hsc_solution
           SPRING_DATASOURCE_USERNAME: hsc
           SPRING_DATASOURCE_PASSWORD: hsc_local_password
         run: mvn --batch-mode clean verify
+
   admin:
     runs-on: ubuntu-latest
     steps:
@@ -36,15 +39,16 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - name: Install dependencies
-        working-directory: HSC_Academic_Solution_Phase_1/admin
+        working-directory: admin
         run: npm install --no-audit --no-fund
       - name: Check admin
-        working-directory: HSC_Academic_Solution_Phase_1/admin
+        working-directory: admin
         run: |
           npm run lint
           npm run typecheck
           npm run test
           npm run build
+
   android:
     runs-on: ubuntu-latest
     steps:
@@ -57,7 +61,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with: {gradle-version: '8.13'}
       - name: Check Android
-        working-directory: HSC_Academic_Solution_Phase_1/android
+        working-directory: android
         run: |
           gradle testDebugUnitTest
           gradle lintDebug
