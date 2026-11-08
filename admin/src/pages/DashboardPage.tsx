@@ -1,0 +1,2 @@
+import {useNavigate} from 'react-router-dom'; import {authStore} from '../auth/authStore'; import {logout} from '../api/http';
+export default function DashboardPage(){const u=authStore.getUser();const nav=useNavigate();return <main><h1>Admin Workspace</h1><p>Signed in as {u?.email}</p><p>Roles: {u?.roles.join(', ')}</p><p>Permissions: {u?.permissions.length}</p><button onClick={async()=>{await logout();nav('/login')}}>Logout</button></main>}

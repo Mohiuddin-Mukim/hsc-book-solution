@@ -1,1 +1,18 @@
-export default function App(){return <main><h1>HSC Academic Solution</h1><p>Admin workspace — Phase 1 foundation.</p><p>Science first · Commerce-ready catalog architecture.</p><p>বাংলা / English · Light / Dark theme foundation</p></main>}
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import ForbiddenPage from "./pages/ForbiddenPage";
+import ProtectedRoute from "./auth/ProtectedRoute";
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forbidden" element={<ForbiddenPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<DashboardPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}

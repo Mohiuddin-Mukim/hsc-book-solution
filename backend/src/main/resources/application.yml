@@ -2,15 +2,16 @@ spring:
   application:
     name: hsc-academic-solution-api
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:hsc_academic}}
-    username: ${DB_USER:hsc_dev}
-    password: ${DB_PASSWORD:change-me-local-only}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:hsc_academic}
+    username: ${DB_USERNAME:hsc_local}
+    password: ${DB_PASSWORD:mukim}
     driver-class-name: org.postgresql.Driver
   flyway:
     enabled: true
     locations: classpath:db/migration
 server:
   port: ${SERVER_PORT:8080}
+  forward-headers-strategy: framework
 management:
   endpoints:
     web:
@@ -21,3 +22,14 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+hsc:
+  security:
+    jwt-secret: ${JWT_SECRET:change-this-local-development-secret-to-a-long-random-value-please}
+    access-token-minutes: ${JWT_ACCESS_MINUTES:15}
+    refresh-token-days: ${JWT_REFRESH_DAYS:30}
+    cors-origins: ${CORS_ORIGINS:http://localhost:5173}
+    bootstrap-admin-email: ${BOOTSTRAP_ADMIN_EMAIL:superadmin15@gmail.com}
+    bootstrap-admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:SuperAdmin@123#}
+    bootstrap-admin-name: ${BOOTSTRAP_ADMIN_NAME:Super Admin}
+    login-rate-limit: ${LOGIN_RATE_LIMIT:5}
+    login-rate-window-seconds: ${LOGIN_RATE_WINDOW_SECONDS:900}
