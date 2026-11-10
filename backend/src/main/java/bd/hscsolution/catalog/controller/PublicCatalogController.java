@@ -1,0 +1,8 @@
+package bd.hscsolution.catalog.controller;
+import bd.hscsolution.catalog.dto.*; import bd.hscsolution.catalog.service.AcademicCatalogService; import org.springframework.data.domain.Page; import org.springframework.http.CacheControl; import org.springframework.http.ResponseEntity; import org.springframework.web.bind.annotation.*; import java.util.*; import static bd.hscsolution.catalog.entity.AcademicEnums.*; import java.util.concurrent.TimeUnit;
+@RestController @RequestMapping("/api/v1/catalog")
+public class PublicCatalogController {
+ private final AcademicCatalogService s; public PublicCatalogController(AcademicCatalogService s){this.s=s;}
+ @GetMapping("/questions") public ResponseEntity<Page<AcademicDtos.QuestionSummary>> questions(@RequestParam UUID chapterId,@RequestParam(required=false)QuestionType type,@RequestParam(required=false)Difficulty difficulty,@RequestParam(required=false)java.math.BigDecimal minMarks,@RequestParam(required=false)java.math.BigDecimal maxMarks,@RequestParam(defaultValue="0")int page,@RequestParam(defaultValue="20")int size){return ResponseEntity.ok().cacheControl(CacheControl.maxAge(60,TimeUnit.SECONDS).cachePublic()).body(s.questions(chapterId,true,type,difficulty,minMarks,maxMarks,page,size));}
+ @GetMapping("/questions/{id}") public ResponseEntity<AcademicDtos.QuestionDetail> question(@PathVariable UUID id,@RequestParam(defaultValue="bn")String language){AcademicDtos.QuestionDetail d=s.publicDetail(id,language);String etag="\"q-"+d.id()+"-"+(d.version()==null?"0":d.version().id())+"\"";return ResponseEntity.ok().cacheControl(CacheControl.maxAge(60,TimeUnit.SECONDS).cachePublic()).eTag(etag).body(d);}
+}

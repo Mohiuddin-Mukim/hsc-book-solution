@@ -1,0 +1,3 @@
+package bd.hscsolution.catalog.entity;
+import jakarta.persistence.*; import java.util.UUID;
+@Entity @Table(name="mcq_explanation",uniqueConstraints=@UniqueConstraint(columnNames={"question_version_id","language_code"})) public class McqExplanation { @Id @GeneratedValue(strategy=GenerationType.UUID) public UUID id; @ManyToOne(fetch=FetchType.LAZY,optional=false) @JoinColumn(name="question_version_id") public QuestionVersion questionVersion; @Column(name="language_code",nullable=false,length=10) public String languageCode; @Column(nullable=false,columnDefinition="text") public String explanation; }

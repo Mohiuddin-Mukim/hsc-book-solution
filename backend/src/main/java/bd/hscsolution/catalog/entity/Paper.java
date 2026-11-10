@@ -1,0 +1,3 @@
+package bd.hscsolution.catalog.entity;
+import jakarta.persistence.*; import java.util.UUID;
+@Entity @Table(name="paper",uniqueConstraints=@UniqueConstraint(columnNames={"subject_id","code"})) public class Paper { @Id @GeneratedValue(strategy=GenerationType.UUID) public UUID id; @ManyToOne(fetch=FetchType.LAZY,optional=false) @JoinColumn(name="subject_id") public Subject subject; @Column(nullable=false,length=30) public String code; @Column(nullable=false,length=160) public String name; @Column(name="paper_number") public Short paperNumber; @Column(name="display_order",nullable=false) public int displayOrder; }
