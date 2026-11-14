@@ -1,3 +1,44 @@
 package bd.hscsolution.catalog.entity;
-import jakarta.persistence.*; import java.util.*;
-@Entity @Table(name="question_version",uniqueConstraints=@UniqueConstraint(columnNames={"question_id","version_no","language_code"})) public class QuestionVersion { @Id @GeneratedValue(strategy=GenerationType.UUID) public UUID id; @ManyToOne(fetch=FetchType.LAZY,optional=false) @JoinColumn(name="question_id") public Question question; @Column(name="version_no",nullable=false) public int versionNo; @Column(name="language_code",nullable=false,length=10) public String languageCode; @Column(nullable=false,columnDefinition="text") public String stem; public java.math.BigDecimal marks; @Column(nullable=false,columnDefinition="jsonb") public String metadata="{}"; @Column(name="created_by") public UUID createdBy; }
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.*;
+
+@Entity
+@Getter
+@Table(name = "question_version", uniqueConstraints = @UniqueConstraint(columnNames = {"question_id", "version_no", "language_code"}))
+public class QuestionVersion {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    public UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "question_id")
+    public Question question;
+
+    @Column(name = "version_no", nullable = false)
+    public int versionNo;
+
+    @Column(name = "language_code", nullable = false, length = 10)
+    public String languageCode;
+
+    @Column(nullable = false, columnDefinition = "text")
+    public String stem;
+
+    public java.math.BigDecimal marks;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    public String metadata = "{}";
+
+    @Column(name = "created_by")
+    public UUID createdBy;
+
+    // QuestionVersion.java ক্লাসে
+    public Question getQuestion() {
+        return this.question;
+    }
+}

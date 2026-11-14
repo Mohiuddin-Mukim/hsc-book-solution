@@ -32,8 +32,14 @@ public class AcademicCatalogService {
     private final AuditService audit;
     private final bd.hscsolution.catalog.repository.TagRepository tags;
     private final bd.hscsolution.catalog.repository.QuestionTagRepository questionTags;
+    private final bd.hscsolution.media.QuestionMediaAttachmentRepository questionMedia;
+    private final bd.hscsolution.media.SolutionStepMediaAttachmentRepository stepMedia;
+    private final bd.hscsolution.media.MediaAssetRepository mediaAssets;
 
-    public AcademicCatalogService(SubjectRepository subjects, PaperRepository papers, BookRepository books, BookEditionRepository editions, ChapterRepository chapters, TopicRepository topics, QuestionRepository questions, QuestionVersionRepository qVersions, SolutionRepository solutions, SolutionVersionRepository sVersions, McqOptionRepository options, McqExplanationRepository explanations, SolutionStepRepository steps, AuditService audit, bd.hscsolution.catalog.repository.TagRepository tags, bd.hscsolution.catalog.repository.QuestionTagRepository questionTags) {
+    public AcademicCatalogService(SubjectRepository subjects, PaperRepository papers, BookRepository books, BookEditionRepository editions, ChapterRepository chapters, TopicRepository topics, QuestionRepository questions, QuestionVersionRepository qVersions, SolutionRepository solutions, SolutionVersionRepository sVersions, McqOptionRepository options, McqExplanationRepository explanations, SolutionStepRepository steps, AuditService audit, bd.hscsolution.catalog.repository.TagRepository tags, bd.hscsolution.catalog.repository.QuestionTagRepository questionTags,
+            bd.hscsolution.media.QuestionMediaAttachmentRepository questionMedia,
+            bd.hscsolution.media.SolutionStepMediaAttachmentRepository stepMedia,
+            bd.hscsolution.media.MediaAssetRepository mediaAssets) {
         this.subjects = subjects;
         this.papers = papers;
         this.books = books;
@@ -50,6 +56,9 @@ public class AcademicCatalogService {
         this.audit = audit;
         this.tags = tags;
         this.questionTags = questionTags;
+        this.questionMedia = questionMedia;
+        this.stepMedia = stepMedia;
+        this.mediaAssets = mediaAssets;
     }
 
     public Page<TagResponse> tags(int page, int size) {
@@ -69,7 +78,7 @@ public class AcademicCatalogService {
     @Transactional
     public void attachTag(UUID qid, UUID versionId, UUID tagId, UUID actor) {
         QuestionVersion v = or404(qVersions.findById(versionId), "Question version");
-        if (!v.question.id.equals(qid))
+        if (v.getQuestion() == null || !java.util.Objects.equals(v.getQuestion().getId(), qid))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Version does not belong to question");
         Tag t = or404(tags.findById(tagId), "Tag");
         questionTags.save(new QuestionTag(new QuestionTag.Key(v.id, t.id)));
@@ -271,7 +280,7 @@ public class AcademicCatalogService {
     @Transactional
     public QuestionVersionDetail addMcqOptions(UUID qid, UUID versionId, List<McqOptionRequest> rs, UUID actor) {
         QuestionVersion v = or404(qVersions.findById(versionId), "Question version");
-        if (!v.question.id.equals(qid))
+        if (v.getQuestion() == null || !java.util.Objects.equals(v.getQuestion().getId(), qid))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Version does not belong to question");
         for (McqOptionRequest r : rs) {
             McqOption o = new McqOption();
@@ -288,7 +297,7 @@ public class AcademicCatalogService {
     @Transactional
     public QuestionVersionDetail addMcqExplanation(UUID qid, UUID versionId, McqExplanationRequest r, UUID actor) {
         QuestionVersion v = or404(qVersions.findById(versionId), "Question version");
-        if (!v.question.id.equals(qid))
+        if (v.getQuestion() == null || !java.util.Objects.equals(v.getQuestion().getId(), qid))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Version does not belong to question");
         McqExplanation e = new McqExplanation();
         e.questionVersion = v;
@@ -348,17 +357,44 @@ public class AcademicCatalogService {
     }
 
     private QuestionVersionDetail versionDetail(QuestionVersion v) {
-        List<McqOptionDto> os = options.findAll().stream().filter(x -> x.questionVersion.id.equals(v.id)).sorted(Comparator.comparingInt(x -> x.displayOrder)).map(x -> new McqOptionDto(x.id, x.optionKey, x.optionText, x.correct, x.displayOrder)).toList();
-        List<McqExplanationDto> es = explanations.findAll().stream().filter(x -> x.questionVersion.id.equals(v.id)).map(x -> new McqExplanationDto(x.id, x.languageCode, x.explanation)).toList();
-        return new QuestionVersionDetail(v.id, v.versionNo, v.languageCode, v.stem, v.marks, os, es);
+        List<McqOptionDto> os = options.findAll().stream()
+                .filter(x -> x.getQuestionVersion() != null && Objects.equals(x.getQuestionVersion().getId(), v.getId()))
+                .sorted(Comparator.comparingInt(x -> x.displayOrder))
+                .map(x -> new McqOptionDto(x.id, x.optionKey, x.optionText, x.correct, x.displayOrder))
+                .toList();
+
+        List<McqExplanationDto> es = explanations.findAll().stream()
+                .filter(x -> x.getQuestionVersion() != null && Objects.equals(x.getQuestionVersion().getId(), v.getId()))
+                .map(x -> new McqExplanationDto(x.id, x.languageCode, x.explanation))
+                .toList();
+
+        var media = questionMedia.findByQuestionVersionIdOrderByDisplayOrderAsc(v.getId()).stream()
+                .map(a -> mediaAssets.findById(a.getMediaAsset().getId()).map(x -> new bd.hscsolution.media.MediaDtos.MediaAssetResponse(
+                        x.id, a.attachmentRole, a.displayOrder, x.caption, x.altText,
+                        x.width == null ? 0 : x.width, x.height == null ? 0 : x.height,
+                        x.byteSize, x.mimeType, x.checksumSha256, x.lifecycleState.name(),
+                        "/api/v1/media/" + x.id, mediaAssets.questionUsage(x.id) + mediaAssets.stepUsage(x.id))).orElse(null))
+                .filter(Objects::nonNull).toList();
+
+        return new QuestionVersionDetail(v.id, v.versionNo, v.languageCode, v.stem, v.marks, os, es, media);
     }
+
 
     private SolutionDetail solutionDetail(Solution s, SolutionVersion v) {
         return new SolutionDetail(s.id, s.status, s.currentVersionId, v == null ? null : solutionVersionDetail(v));
     }
 
     private SolutionVersionDetail solutionVersionDetail(SolutionVersion v) {
-        List<SolutionStepDto> ss = steps.findAll().stream().filter(x -> x.solutionVersion.id.equals(v.id)).sorted(Comparator.comparingInt(x -> x.stepNo)).map(x -> new SolutionStepDto(x.id, x.stepNo, x.title, x.body)).toList();
+        List<SolutionStepDto> ss = steps.findAll().stream().filter(x -> x.solutionVersion.id.equals(v.id)).sorted(Comparator.comparingInt(x -> x.stepNo)).map(x -> {
+            var media = stepMedia.findBySolutionStepIdOrderByDisplayOrderAsc(x.id).stream()
+                    .map(a -> mediaAssets.findById(a.mediaAsset.id).map(m -> new bd.hscsolution.media.MediaDtos.MediaAssetResponse(
+                            m.id, a.attachmentRole, a.displayOrder, m.caption, m.altText,
+                            m.width == null ? 0 : m.width, m.height == null ? 0 : m.height,
+                            m.byteSize, m.mimeType, m.checksumSha256, m.lifecycleState.name(),
+                            "/api/v1/media/" + m.id, mediaAssets.questionUsage(m.id) + mediaAssets.stepUsage(m.id))).orElse(null))
+                    .filter(Objects::nonNull).toList();
+            return new SolutionStepDto(x.id, x.stepNo, x.title, x.body, media);
+        }).toList();
         return new SolutionVersionDetail(v.id, v.versionNo, v.languageCode, v.summary, ss);
     }
 

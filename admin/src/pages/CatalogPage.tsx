@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { catalogApi } from "../api/catalog";
 import type { SubjectSummary } from "../api/contracts";
+import type { MediaAssetResponse } from "../api/mediaContracts";
+import MediaUploader from "../components/MediaUploader";
 export default function CatalogPage() {
   const [items, setItems] = useState<SubjectSummary[]>([]);
   const [error, setError] = useState("");
@@ -10,6 +12,9 @@ export default function CatalogPage() {
     displayOrder: 0,
     active: true,
   });
+  const [mediaTarget, setMediaTarget] = useState("");
+  const [mediaTargetType, setMediaTargetType] = useState<"questionVersion" | "solutionStep">("questionVersion");
+  const [mediaItems, setMediaItems] = useState<MediaAssetResponse[]>([]);
   const load = () =>
     catalogApi
       .subjects()
@@ -66,6 +71,18 @@ export default function CatalogPage() {
           </li>
         ))}
       </ul>
+      <section className="media-target">
+        <h2>Media foundation</h2>
+        <p>Use a real draft question-version ID or solution-step ID. Published versions are protected by the backend.</p>
+        <div className="row">
+          <select value={mediaTargetType} onChange={(e) => setMediaTargetType(e.target.value as "questionVersion" | "solutionStep")}>
+            <option value="questionVersion">Question version</option>
+            <option value="solutionStep">Solution step</option>
+          </select>
+          <input aria-label="Media target ID" placeholder="UUID" value={mediaTarget} onChange={(e) => setMediaTarget(e.target.value)} />
+        </div>
+        {mediaTarget && <MediaUploader targetType={mediaTargetType} targetId={mediaTarget} existing={mediaItems} onChanged={setMediaItems} />}
+      </section>
     </main>
   );
 }

@@ -9,24 +9,27 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: ${MEDIA_MAX_FILE_SIZE:10MB}
+      max-request-size: ${MEDIA_MAX_REQUEST_SIZE:12MB}
 
-#  jpa:
-#    hibernate:
-#      ddl-auto: create-drop
-#    database-platform: org.hibernate.dialect.H2Dialect
 server:
   port: ${SERVER_PORT:8080}
   forward-headers-strategy: framework
+
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
 hsc:
   security:
     jwt-secret: ${JWT_SECRET:change-this-local-development-secret-to-a-long-random-value-please-mohiuddinmukimmmmm}
@@ -38,3 +41,26 @@ hsc:
     bootstrap-admin-name: ${BOOTSTRAP_ADMIN_NAME:Super Admin}
     login-rate-limit: ${LOGIN_RATE_LIMIT:5}
     login-rate-window-seconds: ${LOGIN_RATE_WINDOW_SECONDS:900}
+
+  media:
+    backend: ${MEDIA_STORAGE_BACKEND:local}
+    local-root: ${MEDIA_LOCAL_ROOT:./runtime/media}
+    quarantine-root: ${MEDIA_QUARANTINE_ROOT:./runtime/media-quarantine}
+    max-bytes: ${MEDIA_MAX_BYTES:10485760}
+    max-width: ${MEDIA_MAX_WIDTH:4096}
+    max-height: ${MEDIA_MAX_HEIGHT:4096}
+    allowed-mime-types: ${MEDIA_ALLOWED_MIME_TYPES:image/jpeg,image/png,image/webp}
+    allowed-extensions: ${MEDIA_ALLOWED_EXTENSIONS:jpg,jpeg,png,webp}
+    s3:
+      bucket: ${MEDIA_S3_BUCKET:}
+      region: ${MEDIA_S3_REGION:ap-southeast-1}
+      endpoint: ${MEDIA_S3_ENDPOINT:}
+      path-style-access: ${MEDIA_S3_PATH_STYLE:false}
+      presign-seconds: ${MEDIA_S3_PRESIGN_SECONDS:300}
+
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG

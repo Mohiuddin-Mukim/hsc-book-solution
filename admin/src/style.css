@@ -63,3 +63,13 @@ main button {
     border-color: #475569;
   }
 }
+
+.media-uploader{margin-top:28px;padding:20px;border:1px solid #dbe2ea;border-radius:16px;background:#fbfcfe}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:14px}
+.media-card{border:1px solid #dbe2ea;border-radius:14px;padding:10px;background:white}
+.media-card img{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;background:#eef2f7;border-radius:10px}
+.media-card .row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+.media-target{margin-top:24px;padding:18px;border:1px dashed #b8c4d4;border-radius:14px}
+.media-target select{padding:10px;border:1px solid #cbd5e1;border-radius:10px;background:white}
+.media-target input{padding:10px;border:1px solid #cbd5e1;border-radius:10px;min-width:320px}
