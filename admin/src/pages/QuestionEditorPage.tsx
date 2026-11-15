@@ -4,8 +4,9 @@ import { catalogApi } from "../api/catalog";
 import { authoringApi } from "../api/authoring";
 import MediaUploader from "../components/MediaUploader";
 import MathText from "../components/MathText";
+import type { QuestionDetail, SolutionStep, McqOption } from "../api/authoringContracts";
 
-function latexWarning(s: string) {
+function latexWarning(s: string): string {
   const dollars = (s.match(/\$/g) || []).length;
   const opens = (s.match(/\\\(/g) || []).length,
     closes = (s.match(/\\\)/g) || []).length;
@@ -18,54 +19,64 @@ export default function QuestionEditorPage() {
   const { id } = useParams();
   const editing = Boolean(id);
   const nav = useNavigate();
-  const [subjects, setSubjects] = useState<any[]>([]),
-    [papers, setPapers] = useState<any[]>([]),
-    [chapters, setChapters] = useState<any[]>([]);
-  const [chapterId, setChapterId] = useState(""),
-    [type, setType] = useState("CQ"),
-    [difficulty, setDifficulty] = useState("MEDIUM"),
-    [lang, setLang] = useState("bn"),
-    [stem, setStem] = useState(""),
-    [marks, setMarks] = useState("2"),
-    [finalAnswer, setFinalAnswer] = useState("");
-  const [question, setQuestion] = useState<any>(null),
-    [solution, setSolution] = useState<any>(null),
-    [steps, setSteps] = useState<any[]>([]),
-    [saving, setSaving] = useState(false),
-    [error, setError] = useState(""),
-    [message, setMessage] = useState("");
-  const [mcqOptions, setMcqOptions] = useState<any[]>([]),
-    [mcqExplanation, setMcqExplanation] = useState(""),
-    [tagCode, setTagCode] = useState(""),
-    [tagLabel, setTagLabel] = useState("");
-  const [subjectId, setSubjectId] = useState(""),
-    [paperId, setPaperId] = useState("");
+  
+  const [subjects, setSubjects] = useState<any[]>([]);
+  const [papers, setPapers] = useState<any[]>([]);
+  const [chapters, setChapters] = useState<any[]>([]);
+
+  const [chapterId, setChapterId] = useState("");
+  const [type, setType] = useState("CQ");
+  const [difficulty, setDifficulty] = useState("MEDIUM");
+  const [lang, setLang] = useState("bn");
+  const [stem, setStem] = useState("");
+  const [marks, setMarks] = useState("2");
+  const [finalAnswer, setFinalAnswer] = useState("");
+
+  // এখন সরাসরি authoringContracts থেকে আসা QuestionDetail টাইপ ব্যবহার করা হলো
+  const [question, setQuestion] = useState<QuestionDetail | null>(null);
+  const [solution, setSolution] = useState<any>(null);
+  const [steps, setSteps] = useState<SolutionStep[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  const [mcqOptions, setMcqOptions] = useState<McqOption[]>([]);
+  const [mcqExplanation, setMcqExplanation] = useState("");
+  const [tagCode, setTagCode] = useState("");
+  const [tagLabel, setTagLabel] = useState("");
+
+  const [subjectId, setSubjectId] = useState("");
+  const [paperId, setPaperId] = useState("");
+
   const draftKey = editing
     ? `hsc-draft-question-${id}`
     : "hsc-new-question-draft";
 
-    useEffect(() => {
+  useEffect(() => {
     catalogApi
       .subjects()
       .then((x: any) => setSubjects(x.content ?? x.items ?? x ?? []))
-      .catch((e) => setError(e.message));
+      .catch((e: Error) => setError(e.message));
     if (id) localStorage.removeItem(draftKey);
-  }, [id]);
+  }, [id, draftKey]);
 
   useEffect(() => {
-    if (subjectId)
+    if (subjectId) {
       catalogApi
         .papers(subjectId)
-        .then((x: any) => setPapers(x.content ?? x.items ?? x ?? []));
+        .then((x: any) => setPapers(x.content ?? x.items ?? x ?? []))
+        .catch((e: Error) => setError(e.message));
+    }
   }, [subjectId]);
 
   useEffect(() => {
-    if (paperId)
+    if (paperId) {
       catalogApi
         .chapters(paperId)
-        .then((x: any) => setChapters(x.content ?? x.items ?? x ?? []));
+        .then((x: any) => setChapters(x.content ?? x.items ?? x ?? []))
+        .catch((e: Error) => setError(e.message));
+    }
   }, [paperId]);
-
 
   useEffect(() => {
     const raw = localStorage.getItem(draftKey);
@@ -80,9 +91,12 @@ export default function QuestionEditorPage() {
         setMarks(d.marks ?? "2");
         setFinalAnswer(d.finalAnswer ?? "");
         setMessage("Recovered an unsaved local draft.");
-      } catch {}
+      } catch (err) {
+        console.error("Failed to parse draft JSON", err);
+      }
     }
-  }, []);
+  }, [draftKey, editing]);
+
   useEffect(() => {
     const t = setTimeout(
       () =>
@@ -103,11 +117,12 @@ export default function QuestionEditorPage() {
     );
     return () => clearTimeout(t);
   }, [chapterId, type, difficulty, lang, stem, marks, finalAnswer, draftKey]);
+
   useEffect(() => {
     if (!id) return;
     authoringApi
       .detail(id)
-      .then((q: any) => {
+      .then((q: QuestionDetail) => {
         setQuestion(q);
         setStem(q.version?.stem ?? "");
         setMarks(String(q.version?.marks ?? ""));
@@ -118,6 +133,7 @@ export default function QuestionEditorPage() {
         setSteps(Array.isArray(q.solution?.version?.steps) ? q.solution.version.steps : []);
         setMcqOptions(Array.isArray(q.version?.options) ? q.version.options : []);
         setMcqExplanation(q.version?.explanations?.[0]?.explanation ?? "");
+        
         const raw = localStorage.getItem(draftKey);
         if (raw) {
           try {
@@ -127,10 +143,12 @@ export default function QuestionEditorPage() {
             setLang(d.lang ?? q.version?.languageCode ?? "bn");
             setFinalAnswer(d.finalAnswer ?? "");
             setMessage("Recovered a local draft. Save draft when ready.");
-          } catch {}
+          } catch (err) {
+            console.error("Failed to parse local draft", err);
+          }
         }
       })
-      .catch((e) => setError(e.message));
+      .catch((e: Error) => setError(e.message));
   }, [id, draftKey]);
 
   async function create() {
@@ -159,6 +177,7 @@ export default function QuestionEditorPage() {
       setSaving(false);
     }
   }
+
   async function saveVersion() {
     if (!question?.version) return;
     setSaving(true);
@@ -185,7 +204,9 @@ export default function QuestionEditorPage() {
       setSaving(false);
     }
   }
+
   async function createOrUpdateSolution() {
+    if (!question?.id) return;
     setSaving(true);
     setError("");
     try {
@@ -199,8 +220,8 @@ export default function QuestionEditorPage() {
             expectedLockVersion: solution.version.lockVersion ?? 0,
             steps: steps.map((s, i) => ({
               stepNo: i + 1,
-              title: s.title,
-              body: s.body,
+              title: s.title ?? "",
+              body: s.body ?? "",
             })),
           },
         );
@@ -211,11 +232,11 @@ export default function QuestionEditorPage() {
           summary: "",
           steps: steps.map((s, i) => ({
             stepNo: i + 1,
-            title: s.title,
-            body: s.body,
+            title: s.title ?? "",
+            body: s.body ?? "",
           })),
         });
-        setSolution({ version: v });
+        setSolution({ id: question.id, status: "DRAFT", version: v });
       }
       setMessage("Solution saved.");
     } catch (e) {
@@ -224,7 +245,9 @@ export default function QuestionEditorPage() {
       setSaving(false);
     }
   }
+
   const warning = useMemo(() => latexWarning(stem), [stem]);
+
   return (
     <div>
       <div className="page-head">
@@ -255,7 +278,7 @@ export default function QuestionEditorPage() {
               {question?.status ?? "DRAFT"}
             </span>
           </div>
-                    {!editing && (
+          {!editing && (
             <div className="filters three">
               <label>
                 Subject
@@ -451,6 +474,7 @@ export default function QuestionEditorPage() {
                   setMcqOptions([
                     ...mcqOptions,
                     {
+                      id: "",
                       optionKey: String.fromCharCode(65 + mcqOptions.length),
                       optionText: "",
                       correct: false,
@@ -474,6 +498,7 @@ export default function QuestionEditorPage() {
                   className="ghost"
                   onClick={async () => {
                     try {
+                      if (!question.version) return;
                       await authoringApi.mcqOptions(
                         question.id,
                         question.version.id,
@@ -573,7 +598,7 @@ export default function QuestionEditorPage() {
               onClick={() =>
                 setSteps([
                   ...steps,
-                  { stepNo: steps.length + 1, title: "", body: "" },
+                  { id: "", stepNo: steps.length + 1, title: "", body: "", media: [] },
                 ])
               }
             >
@@ -621,6 +646,7 @@ export default function QuestionEditorPage() {
               disabled={!tagCode || !tagLabel}
               onClick={async () => {
                 try {
+                  if (!question.version) return;
                   const t = await catalogApi.createTag({
                     code: tagCode,
                     label: tagLabel,

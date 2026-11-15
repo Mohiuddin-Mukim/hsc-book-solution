@@ -1,31 +1,56 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { authoringApi } from "../api/authoring";
+import type { QuestionDetail, QuestionVersionDetail } from "../api/authoringContracts";
+
+interface CommentItem {
+  id: string;
+  createdAt: string;
+  body: string;
+}
+
+interface QuestionHistory {
+  currentVersionId?: string;
+  versions?: QuestionVersionDetail[];
+  comments?: CommentItem[];
+}
+
+interface DiffResponse {
+  stemChanged: boolean;
+  marksChanged: boolean;
+}
+
 export default function ReviewQueuePage() {
-  const [status, setStatus] = useState("SUBMITTED"),
-    [items, setItems] = useState<any[]>([]),
-    [selected, setSelected] = useState<any>(null),
-    [history, setHistory] = useState<any>(null),
-    [comment, setComment] = useState(""),
-    [error, setError] = useState("");
+  const [status, setStatus] = useState("SUBMITTED");
+  const [items, setItems] = useState<QuestionDetail[]>([]);
+  const [selected, setSelected] = useState<QuestionDetail | null>(null);
+  const [history, setHistory] = useState<QuestionHistory | null>(null);
+  const [comment, setComment] = useState("");
+  const [error, setError] = useState("");
+
   async function load() {
     try {
-      setItems(await authoringApi.queue(status));
+      const queueData = await authoringApi.queue(status);
+      setItems(queueData as QuestionDetail[]);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
   }
+
   useEffect(() => {
     void load();
   }, [status]);
-  async function open(q: any) {
+
+  async function open(q: QuestionDetail) {
     setSelected(q);
     try {
-      setHistory(await authoringApi.history(q.id));
+      const historyData = await authoringApi.history(q.id);
+      setHistory(historyData as QuestionHistory);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
   }
+
   return (
     <div>
       <div className="page-head">
@@ -84,7 +109,7 @@ export default function ReviewQueuePage() {
               <Link to={`/questions/${selected.id}`}>Open editor</Link>
             </div>
             <div className="review-copy">
-              {history?.versions?.map((v: any, i: number) => (
+              {history?.versions?.map((v, i) => (
                 <article key={v.id} className="version-card">
                   <div>
                     <strong>
@@ -94,15 +119,17 @@ export default function ReviewQueuePage() {
                   </div>
                   <p>{v.stem}</p>
                   <small>Marks: {v.marks}</small>
-                  {i > 0 && (
+                  {i > 0 && history.versions && (
                     <button
                       className="ghost"
                       onClick={async () => {
-                        const d = await authoringApi.diff(
+                        const prevVersion = history.versions?.[i - 1];
+                        if (!prevVersion) return;
+                        const d = (await authoringApi.diff(
                           selected.id,
-                          history.versions[i].id,
-                          history.versions[i - 1].id,
-                        );
+                          v.id,
+                          prevVersion.id,
+                        )) as DiffResponse;
                         alert(
                           `Stem changed: ${d.stemChanged}; marks changed: ${d.marksChanged}`,
                         );
@@ -116,7 +143,7 @@ export default function ReviewQueuePage() {
             </div>
             <div className="comments">
               <h3>Reviewer comments</h3>
-              {history?.comments?.map((c: any) => (
+              {history?.comments?.map((c) => (
                 <div className="comment" key={c.id}>
                   <small>{new Date(c.createdAt).toLocaleString()}</small>
                   <p>{c.body}</p>
@@ -147,10 +174,10 @@ export default function ReviewQueuePage() {
               <button
                 className="ghost"
                 onClick={async () => {
-                  const q = await authoringApi.review(
+                  const q = (await authoringApi.review(
                     selected.id,
                     "CHANGES_REQUESTED",
-                  );
+                  )) as QuestionDetail;
                   setSelected(q);
                   await load();
                   await open(q);
@@ -161,7 +188,10 @@ export default function ReviewQueuePage() {
               <button
                 className="ghost"
                 onClick={async () => {
-                  const q = await authoringApi.review(selected.id, "APPROVED");
+                  const q = (await authoringApi.review(
+                    selected.id,
+                    "APPROVED",
+                  )) as QuestionDetail;
                   setSelected(q);
                   await load();
                   await open(q);
@@ -172,7 +202,9 @@ export default function ReviewQueuePage() {
               <button
                 className="primary"
                 onClick={async () => {
-                  const q = await authoringApi.publish(selected.id);
+                  const q = (await authoringApi.publish(
+                    selected.id,
+                  )) as QuestionDetail;
                   setSelected(q);
                   await load();
                   await open(q);

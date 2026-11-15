@@ -1,20 +1,49 @@
 import { useEffect, useState } from "react";
-import { catalogApi } from "../api/catalog";
 import { Link } from "react-router-dom";
+import { catalogApi } from "../api/catalog";
+import type { QuestionSummary } from "../api/authoringContracts";
+
+interface Subject {
+  id: string;
+  code: string;
+  name: string;
+}
+
+interface Paper {
+  id: string;
+  code: string;
+  name: string;
+}
+
+interface Chapter {
+  id: string;
+  code: string;
+  title: string;
+}
+
+interface ApiResponse<T> {
+  content?: T[];
+  items?: T[];
+}
+
 export default function ContentLibraryPage() {
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [papers, setPapers] = useState<any[]>([]);
-  const [chapters, setChapters] = useState<any[]>([]);
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [papers, setPapers] = useState<Paper[]>([]);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [questions, setQuestions] = useState<QuestionSummary[]>([]);
   const [sid, setSid] = useState("");
   const [pid, setPid] = useState("");
   const [cid, setCid] = useState("");
   const [error, setError] = useState("");
-    useEffect(() => {
+
+  useEffect(() => {
     catalogApi
       .subjects()
-      .then((x: any) => setSubjects(x.content ?? x.items ?? x ?? []))
-      .catch((e) => setError(e.message));
+      .then((x: unknown) => {
+        const res = x as ApiResponse<Subject>;
+        setSubjects(res.content ?? res.items ?? (x as Subject[]) ?? []);
+      })
+      .catch((e: Error) => setError(e.message));
   }, []);
   
   async function pickSubject(v: string) {
@@ -23,25 +52,38 @@ export default function ContentLibraryPage() {
     setCid("");
     setQuestions([]);
     if (v) {
-      const x: any = await catalogApi.papers(v);
-      setPapers(x.content ?? x.items ?? []);
+      try {
+        const x = (await catalogApi.papers(v)) as ApiResponse<Paper>;
+        setPapers(x.content ?? x.items ?? (x as unknown as Paper[]) ?? []);
+      } catch (e: unknown) {
+        if (e instanceof Error) setError(e.message);
+      }
     }
   }
-    async function pickPaper(v: string) {
+
+  async function pickPaper(v: string) {
     setPid(v);
     setCid("");
     setQuestions([]);
     if (v) {
-      const x: any = await catalogApi.chapters(v);
-      setChapters(x.content ?? x.items ?? x ?? []);
+      try {
+        const x = (await catalogApi.chapters(v)) as ApiResponse<Chapter>;
+        setChapters(x.content ?? x.items ?? (x as unknown as Chapter[]) ?? []);
+      } catch (e: unknown) {
+        if (e instanceof Error) setError(e.message);
+      }
     }
   }
 
   async function pickChapter(v: string) {
     setCid(v);
     if (v) {
-      const x: any = await catalogApi.questions(v);
-      setQuestions(x.content ?? x.items ?? x ?? []);
+      try {
+        const x = (await catalogApi.questions(v)) as ApiResponse<QuestionSummary>;
+        setQuestions(x.content ?? x.items ?? (x as unknown as QuestionSummary[]) ?? []);
+      } catch (e: unknown) {
+        if (e instanceof Error) setError(e.message);
+      }
     }
   }
 

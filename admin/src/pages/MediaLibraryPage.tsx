@@ -1,10 +1,12 @@
 import { useState } from "react";
 import MediaUploader from "../components/MediaUploader";
+
 export default function MediaLibraryPage() {
   const [id, setId] = useState("");
   const [type, setType] = useState<"questionVersion" | "solutionStep">(
     "questionVersion",
   );
+
   return (
     <div>
       <div className="page-head">
@@ -23,7 +25,9 @@ export default function MediaLibraryPage() {
             Target type
             <select
               value={type}
-              onChange={(e) => setType(e.target.value as any)}
+              onChange={(e) =>
+                setType(e.target.value as "questionVersion" | "solutionStep")
+              }
             >
               <option value="questionVersion">Question version</option>
               <option value="solutionStep">Solution step</option>
