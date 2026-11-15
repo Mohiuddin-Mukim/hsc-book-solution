@@ -7,6 +7,7 @@ export type ContentStatus =
   | "APPROVED"
   | "PUBLISHED"
   | "ARCHIVED";
+
 export interface MediaAssetResponse {
   id: string;
   role: string;
@@ -22,6 +23,7 @@ export interface MediaAssetResponse {
   deliveryUrl: string;
   usageCount: number;
 }
+
 export interface McqOption {
   id: string;
   optionKey: string;
@@ -29,11 +31,13 @@ export interface McqOption {
   correct: boolean;
   displayOrder: number;
 }
+
 export interface McqExplanation {
   id: string;
   languageCode: string;
   explanation: string;
 }
+
 export interface QuestionVersionDetail {
   id: string;
   versionNo: number;
@@ -45,6 +49,7 @@ export interface QuestionVersionDetail {
   explanations: McqExplanation[];
   media: MediaAssetResponse[];
 }
+
 export interface SolutionStep {
   id: string;
   stepNo: number;
@@ -52,6 +57,7 @@ export interface SolutionStep {
   body: string;
   media: MediaAssetResponse[];
 }
+
 export interface SolutionVersionDetail {
   id: string;
   versionNo: number;
@@ -60,6 +66,17 @@ export interface SolutionVersionDetail {
   lockVersion: number;
   steps: SolutionStep[];
 }
+
+export interface QuestionSummary {
+  id: string;
+  chapterId: string;
+  chapterCode: string;
+  questionType: QuestionType;
+  difficulty?: Difficulty;
+  status: ContentStatus;
+  currentVersionId?: string;
+}
+
 export interface QuestionDetail {
   id: string;
   chapterId: string;
