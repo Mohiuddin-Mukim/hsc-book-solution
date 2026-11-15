@@ -4,7 +4,41 @@ import { catalogApi } from "../api/catalog";
 import { authoringApi } from "../api/authoring";
 import MediaUploader from "../components/MediaUploader";
 import MathText from "../components/MathText";
-import type { QuestionDetail, SolutionStep, McqOption } from "../api/authoringContracts";
+import type { QuestionDetail, SolutionStep, McqOption, SolutionVersionDetail } from "../api/authoringContracts";
+
+interface Subject {
+  id: string;
+  name: string;
+  code: string;
+  displayOrder: number;
+  active: boolean;
+}
+
+interface Paper {
+  id: string;
+  name: string;
+  code: string;
+  displayOrder: number;
+}
+
+interface Chapter {
+  id: string;
+  title: string;
+  code: string;
+  displayOrder: number;
+}
+
+interface SolutionDetailState {
+  id: string;
+  status: string;
+  currentVersionId?: string;
+  version?: SolutionVersionDetail | null;
+}
+
+interface ApiResponse<T> {
+  content?: T[];
+  items?: T[];
+}
 
 function latexWarning(s: string): string {
   const dollars = (s.match(/\$/g) || []).length;
@@ -20,9 +54,9 @@ export default function QuestionEditorPage() {
   const editing = Boolean(id);
   const nav = useNavigate();
   
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [papers, setPapers] = useState<any[]>([]);
-  const [chapters, setChapters] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [papers, setPapers] = useState<Paper[]>([]);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
 
   const [chapterId, setChapterId] = useState("");
   const [type, setType] = useState("CQ");
@@ -32,9 +66,8 @@ export default function QuestionEditorPage() {
   const [marks, setMarks] = useState("2");
   const [finalAnswer, setFinalAnswer] = useState("");
 
-  // এখন সরাসরি authoringContracts থেকে আসা QuestionDetail টাইপ ব্যবহার করা হলো
   const [question, setQuestion] = useState<QuestionDetail | null>(null);
-  const [solution, setSolution] = useState<any>(null);
+  const [solution, setSolution] = useState<SolutionDetailState | null>(null);
   const [steps, setSteps] = useState<SolutionStep[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -55,7 +88,10 @@ export default function QuestionEditorPage() {
   useEffect(() => {
     catalogApi
       .subjects()
-      .then((x: any) => setSubjects(x.content ?? x.items ?? x ?? []))
+      .then((x: unknown) => {
+        const res = x as ApiResponse<Subject>;
+        setSubjects(res.content ?? res.items ?? (x as Subject[]) ?? []);
+      })
       .catch((e: Error) => setError(e.message));
     if (id) localStorage.removeItem(draftKey);
   }, [id, draftKey]);
@@ -64,7 +100,10 @@ export default function QuestionEditorPage() {
     if (subjectId) {
       catalogApi
         .papers(subjectId)
-        .then((x: any) => setPapers(x.content ?? x.items ?? x ?? []))
+        .then((x: unknown) => {
+          const res = x as ApiResponse<Paper>;
+          setPapers(res.content ?? res.items ?? (x as unknown as Paper[]) ?? []);
+        })
         .catch((e: Error) => setError(e.message));
     }
   }, [subjectId]);
@@ -73,7 +112,10 @@ export default function QuestionEditorPage() {
     if (paperId) {
       catalogApi
         .chapters(paperId)
-        .then((x: any) => setChapters(x.content ?? x.items ?? x ?? []))
+        .then((x: unknown) => {
+          const res = x as ApiResponse<Chapter>;
+          setChapters(res.content ?? res.items ?? (x as unknown as Chapter[]) ?? []);
+        })
         .catch((e: Error) => setError(e.message));
     }
   }, [paperId]);
