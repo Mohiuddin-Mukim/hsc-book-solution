@@ -37,9 +37,9 @@ public class AcademicCatalogService {
     private final bd.hscsolution.media.MediaAssetRepository mediaAssets;
 
     public AcademicCatalogService(SubjectRepository subjects, PaperRepository papers, BookRepository books, BookEditionRepository editions, ChapterRepository chapters, TopicRepository topics, QuestionRepository questions, QuestionVersionRepository qVersions, SolutionRepository solutions, SolutionVersionRepository sVersions, McqOptionRepository options, McqExplanationRepository explanations, SolutionStepRepository steps, AuditService audit, bd.hscsolution.catalog.repository.TagRepository tags, bd.hscsolution.catalog.repository.QuestionTagRepository questionTags,
-            bd.hscsolution.media.QuestionMediaAttachmentRepository questionMedia,
-            bd.hscsolution.media.SolutionStepMediaAttachmentRepository stepMedia,
-            bd.hscsolution.media.MediaAssetRepository mediaAssets) {
+                                  bd.hscsolution.media.QuestionMediaAttachmentRepository questionMedia,
+                                  bd.hscsolution.media.SolutionStepMediaAttachmentRepository stepMedia,
+                                  bd.hscsolution.media.MediaAssetRepository mediaAssets) {
         this.subjects = subjects;
         this.papers = papers;
         this.books = books;
@@ -119,8 +119,10 @@ public class AcademicCatalogService {
     }
 
     public Page<PaperResponse> papers(UUID subjectId, int page, int size) {
-        return papers.findAll(PageRequest.of(page, Math.min(size, 100), Sort.by("displayOrder").ascending())).map(p -> new PaperResponse(p.id, p.subject.id, p.subject.code, p.code, p.name, p.paperNumber, p.displayOrder));
+        return papers.findAll(PageRequest.of(page, Math.min(size, 100), Sort.by("displayOrder").ascending()))
+                .map(p -> new PaperResponse(p.getId(), p.getSubject().getId(), p.getSubject().getCode(), p.code, p.name, p.paperNumber, p.displayOrder));
     }
+
 
     @Transactional
     public PaperResponse createPaper(PaperRequest r, UUID actor) {
@@ -130,14 +132,14 @@ public class AcademicCatalogService {
         p.name = r.name().trim();
         p.paperNumber = r.paperNumber();
         p.displayOrder = r.displayOrder();
-        papers.save(p);
-        audit.record(actor, "CONTENT_CREATE", "PAPER", p.id, null, Map.of("subjectId", p.subject.id, "code", p.code));
+        p = papers.saveAndFlush(p);
+        audit.record(actor, "CONTENT_CREATE", "PAPER", p.getId(), null, Map.of("subjectId", p.getSubject().getId(), "code", p.code));
         return to(p);
     }
 
     public Page<BookResponse> books(UUID subjectId, int page, int size) {
         Page<Book> p = subjectId == null ? books.findAll(PageRequest.of(page, Math.min(size, 100), Sort.by("title"))) : books.findAll(PageRequest.of(page, Math.min(size, 100)));
-        return p.map(b -> new BookResponse(b.id, b.subject.id, b.title, b.publisher, b.isbn));
+        return p.map(b -> new BookResponse(b.getId(), b.getSubject().getId(), b.title, b.publisher, b.isbn));
     }
 
     @Transactional
@@ -147,9 +149,9 @@ public class AcademicCatalogService {
         b.title = r.title().trim();
         b.publisher = r.publisher();
         b.isbn = r.isbn();
-        books.save(b);
-        audit.record(actor, "CONTENT_CREATE", "BOOK", b.id, null, Map.of("title", b.title));
-        return new BookResponse(b.id, b.subject.id, b.title, b.publisher, b.isbn);
+        b = books.saveAndFlush(b);
+        audit.record(actor, "CONTENT_CREATE", "BOOK", b.getId(), null, Map.of("title", b.title));
+        return new BookResponse(b.getId(), b.getSubject().getId(), b.title, b.publisher, b.isbn);
     }
 
     @Transactional
@@ -158,13 +160,13 @@ public class AcademicCatalogService {
         e.book = or404(books.findById(bookId), "Book");
         e.editionLabel = r.editionLabel().trim();
         e.publicationYear = r.publicationYear();
-        editions.save(e);
-        return new EditionResponse(e.id, e.book.id, e.editionLabel, e.publicationYear);
+        e = editions.saveAndFlush(e);
+        return new EditionResponse(e.getId(), e.getBook().getId(), e.editionLabel, e.publicationYear);
     }
 
     public Page<ChapterResponse> chapters(UUID paperId, int page, int size) {
         Page<Chapter> p = chapters.findAll(PageRequest.of(page, Math.min(size, 100), Sort.by("displayOrder")));
-        return p.map(c -> new ChapterResponse(c.id, c.paper.id, c.paper.code, c.code, c.title, c.displayOrder));
+        return p.map(c -> new ChapterResponse(c.getId(), c.getPaper().getId(), c.getPaper().getCode(), c.code, c.title, c.displayOrder));
     }
 
     @Transactional
@@ -174,14 +176,14 @@ public class AcademicCatalogService {
         c.code = norm(r.code());
         c.title = r.title().trim();
         c.displayOrder = r.displayOrder();
-        chapters.save(c);
-        audit.record(actor, "CONTENT_CREATE", "CHAPTER", c.id, null, Map.of("paperId", c.paper.id, "code", c.code));
-        return new ChapterResponse(c.id, c.paper.id, c.paper.code, c.code, c.title, c.displayOrder);
+        c = chapters.saveAndFlush(c);
+        audit.record(actor, "CONTENT_CREATE", "CHAPTER", c.getId(), null, Map.of("paperId", c.getPaper().getId(), "code", c.code));
+        return new ChapterResponse(c.getId(), c.getPaper().getId(), c.getPaper().getCode(), c.code, c.title, c.displayOrder);
     }
 
     public Page<TopicResponse> topics(UUID chapterId, int page, int size) {
         Page<Topic> p = topics.findAll(PageRequest.of(page, Math.min(size, 100), Sort.by("displayOrder")));
-        return p.map(t -> new TopicResponse(t.id, t.chapter.id, t.code, t.title, t.displayOrder));
+        return p.map(t -> new TopicResponse(t.getId(), t.getChapter().getId(), t.code, t.title, t.displayOrder));
     }
 
     @Transactional
@@ -191,20 +193,22 @@ public class AcademicCatalogService {
         t.code = norm(r.code());
         t.title = r.title().trim();
         t.displayOrder = r.displayOrder();
-        topics.save(t);
-        return new TopicResponse(t.id, t.chapter.id, t.code, t.title, t.displayOrder);
+        t = topics.saveAndFlush(t);
+        return new TopicResponse(t.getId(), t.getChapter().getId(), t.code, t.title, t.displayOrder);
     }
 
     @Transactional
     public QuestionDetail createQuestion(QuestionCreateRequest r, UUID actor) {
         Chapter c = or404(chapters.findById(r.chapterId()), "Chapter");
+
         Question q = new Question();
         q.chapter = c;
         q.questionType = r.questionType();
         q.difficulty = r.difficulty();
         q.createdBy = actor;
         q.status = ContentStatus.DRAFT;
-        questions.save(q);
+        q = questions.saveAndFlush(q); // রিটার্ন ভ্যালু q-তে রাখুন
+
         QuestionVersion v = new QuestionVersion();
         v.question = q;
         v.versionNo = 1;
@@ -212,18 +216,20 @@ public class AcademicCatalogService {
         v.stem = r.stem().trim();
         v.marks = r.marks();
         v.createdBy = actor;
-        qVersions.save(v);
-        q.currentVersionId = v.id;
-        questions.save(q);
-        audit.record(actor, "CONTENT_CREATE", "QUESTION", q.id, null, Map.of("versionId", v.id));
+        v = qVersions.saveAndFlush(v); // রিটার্ন ভ্যালু v-তে রাখুন
+
+        q.currentVersionId = v.getId(); // সরাসরি ফিল্ডের বদলে গেটার ব্যবহার করুন
+        q = questions.saveAndFlush(q);
+
+        audit.record(actor, "CONTENT_CREATE", "QUESTION", q.id, null, Map.of("versionId", v.getId()));
+
         return detail(q, v);
     }
+
 
     @Transactional
     public QuestionVersionDetail addQuestionVersion(UUID qid, QuestionVersionRequest r, UUID actor) {
         Question q = or404(questions.findById(qid), "Question");
-        if (q.status == ContentStatus.PUBLISHED) {
-        }
         int next = qVersions.countByQuestionIdAndLanguageCode(qid, lang(r.languageCode())) + 1;
         QuestionVersion v = new QuestionVersion();
         v.question = q;
@@ -232,35 +238,38 @@ public class AcademicCatalogService {
         v.stem = r.stem().trim();
         v.marks = r.marks();
         v.createdBy = actor;
-        qVersions.save(v);
-        q.currentVersionId = v.id;
+        v = qVersions.saveAndFlush(v);
+
+        q.currentVersionId = v.getId();
         if (q.status == ContentStatus.PUBLISHED) {
             q.status = ContentStatus.DRAFT;
         }
-        questions.save(q);
-        audit.record(actor, "CONTENT_EDIT", "QUESTION_VERSION", v.id, null, Map.of("questionId", qid, "versionNo", next, "language", v.languageCode));
+        questions.saveAndFlush(q);
+        audit.record(actor, "CONTENT_EDIT", "QUESTION_VERSION", v.getId(), null, Map.of("questionId", qid, "versionNo", next, "language", v.languageCode));
         return versionDetail(v);
     }
 
     @Transactional
     public SolutionVersionDetail addSolutionVersion(UUID qid, SolutionVersionRequest r, UUID actor) {
         Question q = or404(questions.findById(qid), "Question");
+
         Solution s = solutions.findByQuestionId(qid).orElseGet(() -> {
             Solution x = new Solution();
             x.question = q;
             x.createdBy = actor;
-            return solutions.save(x);
+            return solutions.saveAndFlush(x); // save এর বদলে saveAndFlush
         });
-        if (s.status == ContentStatus.PUBLISHED) {
-        }
-        int next = sVersions.countBySolutionIdAndLanguageCode(s.id, lang(r.languageCode())) + 1;
+
+        int next = sVersions.countBySolutionIdAndLanguageCode(s.getId(), lang(r.languageCode())) + 1;
+
         SolutionVersion v = new SolutionVersion();
         v.solution = s;
         v.versionNo = next;
         v.languageCode = lang(r.languageCode());
         v.summary = r.summary();
         v.createdBy = actor;
-        sVersions.save(v);
+        v = sVersions.saveAndFlush(v); // রিটার্ন করা ম্যানেজড অবজেক্টটি v-তে রাখুন
+
         for (SolutionStepRequest sr : r.steps() == null ? List.<SolutionStepRequest>of() : r.steps()) {
             SolutionStep st = new SolutionStep();
             st.solutionVersion = v;
@@ -269,11 +278,15 @@ public class AcademicCatalogService {
             st.body = sr.body().trim();
             steps.save(st);
         }
+
         if (s.status != ContentStatus.PUBLISHED) {
-            s.currentVersionId = v.id;
-            solutions.save(s);
+            s.currentVersionId = v.getId();
+            solutions.saveAndFlush(s);
         }
-        audit.record(actor, "CONTENT_EDIT", "SOLUTION_VERSION", v.id, null, Map.of("questionId", qid, "versionNo", next, "language", v.languageCode));
+
+        audit.record(actor, "CONTENT_EDIT", "SOLUTION_VERSION", v.getId(), null,
+                Map.of("questionId", qid, "versionNo", next, "language", v.languageCode));
+
         return solutionVersionDetail(v);
     }
 
@@ -338,7 +351,8 @@ public class AcademicCatalogService {
 
     public Page<QuestionSummary> questions(UUID chapterId, boolean publishedOnly, QuestionType type, Difficulty difficulty, java.math.BigDecimal minMarks, java.math.BigDecimal maxMarks, int page, int size) {
         Pageable p = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100), Sort.by("id").ascending());
-        return questions.search(chapterId, publishedOnly, ContentStatus.PUBLISHED, type, difficulty, minMarks, maxMarks, p).map(q -> new QuestionSummary(q.id, q.chapter.id, q.chapter.code, q.questionType, q.difficulty, q.status, q.currentVersionId));
+        return questions.search(chapterId, publishedOnly, ContentStatus.PUBLISHED, type, difficulty, minMarks, maxMarks, p)
+                .map(q -> new QuestionSummary(q.getId(), q.getChapter().getId(), q.getChapter().getCode(), q.questionType, q.difficulty, q.status, q.currentVersionId));
     }
 
     @Transactional(readOnly = true)
@@ -353,50 +367,70 @@ public class AcademicCatalogService {
     }
 
     private QuestionDetail detail(Question q, QuestionVersion v) {
-        return new QuestionDetail(q.id, q.chapter.id, q.chapter.code, null, q.questionType, q.difficulty, q.status, v == null ? null : versionDetail(v), q.currentVersionId == null ? null : solutions.findByQuestionId(q.id).map(s -> solutionDetail(s, s.publishedVersionId == null ? null : sVersions.findById(s.publishedVersionId).orElse(null))).orElse(null));
+        return new QuestionDetail(
+                q.getId(), q.getChapter().getId(), q.getChapter().getCode(), null,
+                q.questionType, q.difficulty, q.status,
+                v == null ? null : versionDetail(v),
+                q.currentVersionId == null ? null : solutions.findByQuestionId(q.getId()).map(s -> solutionDetail(s, s.publishedVersionId == null ? null : sVersions.findById(s.publishedVersionId).orElse(null))).orElse(null)
+        );
     }
 
     private QuestionVersionDetail versionDetail(QuestionVersion v) {
         List<McqOptionDto> os = options.findAll().stream()
                 .filter(x -> x.getQuestionVersion() != null && Objects.equals(x.getQuestionVersion().getId(), v.getId()))
                 .sorted(Comparator.comparingInt(x -> x.displayOrder))
-                .map(x -> new McqOptionDto(x.id, x.optionKey, x.optionText, x.correct, x.displayOrder))
+                .map(x -> new McqOptionDto(x.getId(), x.optionKey, x.optionText, x.correct, x.displayOrder))
                 .toList();
 
         List<McqExplanationDto> es = explanations.findAll().stream()
                 .filter(x -> x.getQuestionVersion() != null && Objects.equals(x.getQuestionVersion().getId(), v.getId()))
-                .map(x -> new McqExplanationDto(x.id, x.languageCode, x.explanation))
+                .map(x -> new McqExplanationDto(x.getId(), x.languageCode, x.explanation))
                 .toList();
 
         var media = questionMedia.findByQuestionVersionIdOrderByDisplayOrderAsc(v.getId()).stream()
-                .map(a -> mediaAssets.findById(a.getMediaAsset().getId()).map(x -> new bd.hscsolution.media.MediaDtos.MediaAssetResponse(
-                        x.id, a.attachmentRole, a.displayOrder, x.caption, x.altText,
+                .map(a -> a.getMediaAsset() == null ? null : mediaAssets.findById(a.getMediaAsset().getId()).map(x -> new bd.hscsolution.media.MediaDtos.MediaAssetResponse(
+                        x.getId(), a.attachmentRole, a.displayOrder, x.caption, x.altText,
                         x.width == null ? 0 : x.width, x.height == null ? 0 : x.height,
-                        x.byteSize, x.mimeType, x.checksumSha256, x.lifecycleState.name(),
-                        "/api/v1/media/" + x.id, mediaAssets.questionUsage(x.id) + mediaAssets.stepUsage(x.id))).orElse(null))
+                        x.byteSize, x.mimeType, x.checksumSha256,
+                        x.getLifecycleState() != null ? x.getLifecycleState().name() : "PENDING",
+                        "/api/v1/media/" + x.getId(), mediaAssets.questionUsage(x.getId()) + mediaAssets.stepUsage(x.getId()))).orElse(null))
                 .filter(Objects::nonNull).toList();
 
-        return new QuestionVersionDetail(v.id, v.versionNo, v.languageCode, v.stem, v.marks, os, es, media);
+        return new QuestionVersionDetail(v.getId(), v.versionNo, v.languageCode, v.stem, v.marks, v.lockVersion, os, es, media);
     }
 
 
     private SolutionDetail solutionDetail(Solution s, SolutionVersion v) {
-        return new SolutionDetail(s.id, s.status, s.currentVersionId, v == null ? null : solutionVersionDetail(v));
+        return new SolutionDetail(
+                s.getId(),
+                s.status,
+                s.currentVersionId,
+                v == null ? null : solutionVersionDetail(v)
+        );
     }
 
     private SolutionVersionDetail solutionVersionDetail(SolutionVersion v) {
-        List<SolutionStepDto> ss = steps.findAll().stream().filter(x -> x.solutionVersion.id.equals(v.id)).sorted(Comparator.comparingInt(x -> x.stepNo)).map(x -> {
-            var media = stepMedia.findBySolutionStepIdOrderByDisplayOrderAsc(x.id).stream()
-                    .map(a -> mediaAssets.findById(a.mediaAsset.id).map(m -> new bd.hscsolution.media.MediaDtos.MediaAssetResponse(
-                            m.id, a.attachmentRole, a.displayOrder, m.caption, m.altText,
-                            m.width == null ? 0 : m.width, m.height == null ? 0 : m.height,
-                            m.byteSize, m.mimeType, m.checksumSha256, m.lifecycleState.name(),
-                            "/api/v1/media/" + m.id, mediaAssets.questionUsage(m.id) + mediaAssets.stepUsage(m.id))).orElse(null))
-                    .filter(Objects::nonNull).toList();
-            return new SolutionStepDto(x.id, x.stepNo, x.title, x.body, media);
-        }).toList();
-        return new SolutionVersionDetail(v.id, v.versionNo, v.languageCode, v.summary, ss);
+        List<SolutionStepDto> ss = steps.findAll().stream()
+                .filter(x -> x.getSolutionVersion() != null && Objects.equals(x.getSolutionVersion().getId(), v.getId()))
+                .sorted(Comparator.comparingInt(x -> x.stepNo))
+                .map(x -> {
+                    var media = stepMedia.findBySolutionStepIdOrderByDisplayOrderAsc(x.getId()).stream()
+                            .map(a -> a.getMediaAsset() == null ? null : mediaAssets.findById(a.getMediaAsset().getId())
+                                    .map(m -> new bd.hscsolution.media.MediaDtos.MediaAssetResponse(
+                                            m.getId(), a.attachmentRole, a.displayOrder, m.caption, m.altText,
+                                            m.width == null ? 0 : m.width, m.height == null ? 0 : m.height,
+                                            m.byteSize, m.mimeType, m.checksumSha256, m.lifecycleState.name(),
+                                            "/api/v1/media/" + m.getId(),
+                                            mediaAssets.questionUsage(m.getId()) + mediaAssets.stepUsage(m.getId())))
+                                    .orElse(null))
+                            .filter(Objects::nonNull)
+                            .toList();
+                    return new SolutionStepDto(x.getId(), x.stepNo, x.title, x.body, media);
+                })
+                .toList();
+        return new SolutionVersionDetail(v.getId(), v.versionNo, v.languageCode, v.summary, v.lockVersion, ss);
     }
+
 
     private void transition(ContentStatus from, ContentStatus to) {
         boolean ok = switch (from) {
@@ -422,6 +456,6 @@ public class AcademicCatalogService {
     }
 
     private PaperResponse to(Paper p) {
-        return new PaperResponse(p.id, p.subject.id, p.subject.code, p.code, p.name, p.paperNumber, p.displayOrder);
+        return new PaperResponse(p.getId(), p.getSubject().getId(), p.getSubject().getCode(), p.code, p.name, p.paperNumber, p.displayOrder);
     }
 }

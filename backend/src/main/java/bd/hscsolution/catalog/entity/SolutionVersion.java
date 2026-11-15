@@ -32,6 +32,10 @@ public class SolutionVersion {
     @Column(nullable = false, columnDefinition = "jsonb")
     public String metadata = "{}";
 
+    @Version
+    @Column(name = "lock_version", nullable = false)
+    public Long lockVersion = 0L;
+
     @Column(name = "created_by")
     public UUID createdBy;
 

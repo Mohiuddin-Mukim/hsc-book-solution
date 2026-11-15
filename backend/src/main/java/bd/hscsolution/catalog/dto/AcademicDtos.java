@@ -28,11 +28,11 @@ public final class AcademicDtos {
     public record SolutionVersionRequest(String languageCode,String summary,List<SolutionStepRequest> steps) {}
     public record QuestionSummary(UUID id,UUID chapterId,String chapterCode,QuestionType questionType,Difficulty difficulty,ContentStatus status,UUID currentVersionId) {}
     public record QuestionDetail(UUID id,UUID chapterId,String chapterCode,String topicHint,QuestionType questionType,Difficulty difficulty,ContentStatus status,QuestionVersionDetail version,SolutionDetail solution) {}
-    public record QuestionVersionDetail(UUID id,int versionNo,String languageCode,String stem,BigDecimal marks,List<McqOptionDto> options,List<McqExplanationDto> explanations,List<bd.hscsolution.media.MediaDtos.MediaAssetResponse> media) {}
+    public record QuestionVersionDetail(UUID id,int versionNo,String languageCode,String stem,BigDecimal marks,Long lockVersion,List<McqOptionDto> options,List<McqExplanationDto> explanations,List<bd.hscsolution.media.MediaDtos.MediaAssetResponse> media) {}
     public record McqOptionDto(UUID id,String optionKey,String optionText,boolean correct,int displayOrder) {}
     public record McqExplanationDto(UUID id,String languageCode,String explanation) {}
     public record SolutionDetail(UUID id,ContentStatus status,UUID currentVersionId,SolutionVersionDetail version) {}
-    public record SolutionVersionDetail(UUID id,int versionNo,String languageCode,String summary,List<SolutionStepDto> steps) {}
+    public record SolutionVersionDetail(UUID id,int versionNo,String languageCode,String summary,Long lockVersion,List<SolutionStepDto> steps) {}
     public record SolutionStepDto(UUID id,int stepNo,String title,String body,List<bd.hscsolution.media.MediaDtos.MediaAssetResponse> media) {}
     public record WorkflowRequest(ContentStatus targetStatus,String note) {}
     public record TagRequest(String code,String label) {}

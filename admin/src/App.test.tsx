@@ -1,1 +1,2 @@
-import {it,expect} from 'vitest'; it('test runner works',()=>expect('HSC').toContain('HS'));
+import { it, expect } from "vitest";
+it("test runner works", () => expect("HSC").toContain("HS"));

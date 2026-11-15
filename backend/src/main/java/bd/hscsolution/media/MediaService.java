@@ -113,9 +113,9 @@ public class MediaService {
         if(current.size()!=items.size()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Reorder must include every attached asset");
         Map<UUID,Integer> wanted=new HashMap<>();
         for(var i:items) wanted.put(i.assetId(),i.displayOrder());
-        if(wanted.size()!=items.size() || current.stream().anyMatch(a->!wanted.containsKey(a.mediaAsset.id)))
+        if(wanted.size()!=items.size() || current.stream().anyMatch(a->!wanted.containsKey(a.mediaAsset.getId())))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Reorder asset set does not match current attachments");
-        for(var a:current) a.displayOrder=wanted.get(a.mediaAsset.id);
+        for(var a:current) a.displayOrder=wanted.get(a.mediaAsset.getId());
         qAttachments.saveAll(current);
         audit.record(actor,"MEDIA_REORDER","QUESTION_VERSION",versionId,null,Map.of("count",items.size()));
     }
@@ -126,9 +126,9 @@ public class MediaService {
         List<SolutionStepMediaAttachment> current=sAttachments.findBySolutionStepIdOrderByDisplayOrderAsc(stepId);
         if(current.size()!=items.size()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Reorder must include every attached asset");
         Map<UUID,Integer> wanted=new HashMap<>(); for(var i:items) wanted.put(i.assetId(),i.displayOrder());
-        if(wanted.size()!=items.size() || current.stream().anyMatch(a->!wanted.containsKey(a.mediaAsset.id)))
+        if(wanted.size()!=items.size() || current.stream().anyMatch(a->!wanted.containsKey(a.mediaAsset.getId())))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Reorder asset set does not match current attachments");
-        for(var a:current) a.displayOrder=wanted.get(a.mediaAsset.id);
+        for(var a:current) a.displayOrder=wanted.get(a.mediaAsset.getId());
         sAttachments.saveAll(current);
         audit.record(actor,"MEDIA_REORDER","SOLUTION_STEP",stepId,null,Map.of("count",items.size()));
     }

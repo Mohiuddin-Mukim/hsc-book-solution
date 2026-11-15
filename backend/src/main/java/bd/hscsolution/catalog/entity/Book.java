@@ -1,12 +1,14 @@
 package bd.hscsolution.catalog.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
 @Entity
+@Getter
 @Table(name = "book")
 public class Book {
     @Id

@@ -13,7 +13,9 @@ export default function CatalogPage() {
     active: true,
   });
   const [mediaTarget, setMediaTarget] = useState("");
-  const [mediaTargetType, setMediaTargetType] = useState<"questionVersion" | "solutionStep">("questionVersion");
+  const [mediaTargetType, setMediaTargetType] = useState<
+    "questionVersion" | "solutionStep"
+  >("questionVersion");
   const [mediaItems, setMediaItems] = useState<MediaAssetResponse[]>([]);
   const load = () =>
     catalogApi
@@ -73,15 +75,37 @@ export default function CatalogPage() {
       </ul>
       <section className="media-target">
         <h2>Media foundation</h2>
-        <p>Use a real draft question-version ID or solution-step ID. Published versions are protected by the backend.</p>
+        <p>
+          Use a real draft question-version ID or solution-step ID. Published
+          versions are protected by the backend.
+        </p>
         <div className="row">
-          <select value={mediaTargetType} onChange={(e) => setMediaTargetType(e.target.value as "questionVersion" | "solutionStep")}>
+          <select
+            value={mediaTargetType}
+            onChange={(e) =>
+              setMediaTargetType(
+                e.target.value as "questionVersion" | "solutionStep",
+              )
+            }
+          >
             <option value="questionVersion">Question version</option>
             <option value="solutionStep">Solution step</option>
           </select>
-          <input aria-label="Media target ID" placeholder="UUID" value={mediaTarget} onChange={(e) => setMediaTarget(e.target.value)} />
+          <input
+            aria-label="Media target ID"
+            placeholder="UUID"
+            value={mediaTarget}
+            onChange={(e) => setMediaTarget(e.target.value)}
+          />
         </div>
-        {mediaTarget && <MediaUploader targetType={mediaTargetType} targetId={mediaTarget} existing={mediaItems} onChanged={setMediaItems} />}
+        {mediaTarget && (
+          <MediaUploader
+            targetType={mediaTargetType}
+            targetId={mediaTarget}
+            existing={mediaItems}
+            onChanged={setMediaItems}
+          />
+        )}
       </section>
     </main>
   );
