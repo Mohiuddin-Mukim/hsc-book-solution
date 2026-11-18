@@ -1,8 +1,8 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { importApi } from "../api/imports";
 import type { ImportMode, ImportPreview } from "../api/importContracts";
-import { authStore } from "../auth/authStore";
+// import { authStore } from "../auth/authStore";
 
 const sample = JSON.stringify({
   schemaVersion:"1.0",
