@@ -11,8 +11,8 @@ spring:
     locations: classpath:db/migration
   servlet:
     multipart:
-      max-file-size: ${MEDIA_MAX_FILE_SIZE:10MB}
-      max-request-size: ${MEDIA_MAX_REQUEST_SIZE:12MB}
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:50MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:55MB}
 
 server:
   port: ${SERVER_PORT:8080}
@@ -41,6 +41,15 @@ hsc:
     bootstrap-admin-name: ${BOOTSTRAP_ADMIN_NAME:Super Admin}
     login-rate-limit: ${LOGIN_RATE_LIMIT:5}
     login-rate-window-seconds: ${LOGIN_RATE_WINDOW_SECONDS:900}
+
+
+  import:
+    storage-root: ${IMPORT_STORAGE_ROOT:./runtime/imports}
+    max-file-bytes: ${IMPORT_MAX_FILE_BYTES:52428800}
+    max-rows: ${IMPORT_MAX_ROWS:5000}
+    max-zip-entries: ${IMPORT_MAX_ZIP_ENTRIES:1000}
+    max-zip-uncompressed-bytes: ${IMPORT_MAX_ZIP_UNCOMPRESSED_BYTES:104857600}
+    max-zip-entry-bytes: ${IMPORT_MAX_ZIP_ENTRY_BYTES:20971520}
 
   media:
     backend: ${MEDIA_STORAGE_BACKEND:local}

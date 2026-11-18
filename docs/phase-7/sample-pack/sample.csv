@@ -1,0 +1,2 @@
+externalId,chapterId,languageCode,questionType,difficulty,stem,marks,finalAnswer,tags,mcqOptions,mcqExplanation,solution,media
+PHYS-CH01-CSV,REPLACE_WITH_CHAPTER_UUID,bn,CQ,MEDIUM,"নিউটনের সূত্র $F=ma$",5,"F = ma","["newton-laws"]","","","{"languageCode":"bn","summary":"সূত্র প্রয়োগ","steps":[{"stepNo":1,"title":"সূত্র","body":"$F=ma$"}]}","[]"

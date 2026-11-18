@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hsc-academic-import-1.0",
+  "title": "HSC Academic Canonical Import",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "items"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "items": {
+      "type": "array",
+      "maxItems": 5000,
+      "items": {
+        "type": "object",
+        "required": [
+          "externalId",
+          "chapterId",
+          "languageCode",
+          "questionType",
+          "stem"
+        ],
+        "properties": {
+          "externalId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "chapterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "languageCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 10
+          },
+          "questionType": {
+            "enum": [
+              "MCQ",
+              "CQ",
+              "NUMERICAL",
+              "SHORT",
+              "OTHER"
+            ]
+          },
+          "difficulty": {
+            "enum": [
+              "EASY",
+              "MEDIUM",
+              "HARD"
+            ]
+          },
+          "stem": {
+            "type": "string",
+            "minLength": 1
+          },
+          "marks": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "finalAnswer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 80
+            }
+          },
+          "mcqOptions": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": [
+                "optionKey",
+                "optionText",
+                "correct"
+              ],
+              "properties": {
+                "optionKey": {
+                  "type": "string"
+                },
+                "optionText": {
+                  "type": "string"
+                },
+                "correct": {
+                  "type": "boolean"
+                },
+                "displayOrder": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "mcqExplanation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/media"
+            }
+          },
+          "solution": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "languageCode": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "stepNo",
+                    "body"
+                  ],
+                  "properties": {
+                    "stepNo": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "body": {
+                      "type": "string"
+                    },
+                    "media": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/media"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "$defs": {
+      "media": {
+        "type": "object",
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "caption": {
+            "type": "string"
+          },
+          "altText": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

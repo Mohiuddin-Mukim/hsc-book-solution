@@ -1,0 +1,1 @@
+{"schemaVersion":"1.0","items":[{"externalId":"P7-BAD-MEDIA-001","chapterId":"e84c60fb-b6a9-4bd8-88c1-7bc2f1c633fb","languageCode":"bn","questionType":"CQ","stem":"Wrong media path test","marks":5,"media":[{"path":"images/not-found.png","role":"ILLUSTRATION","order":0,"caption":"Test","altText":"Test"}]}]}

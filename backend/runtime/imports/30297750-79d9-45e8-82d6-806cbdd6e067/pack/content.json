@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "items": [
+    {
+      "externalId": "PHYS-CH01-001",
+      "chapterId": "e84c60fb-b6a9-4bd8-88c1-7bc2f1c633fb",
+      "languageCode": "bn",
+      "questionType": "CQ",
+      "difficulty": "MEDIUM",
+      "stem": "নিউটনের দ্বিতীয় সূত্রটি ব্যাখ্যা করুন। $F=ma$",
+      "marks": 5,
+      "finalAnswer": "F = ma",
+      "tags": [
+        "newton-laws"
+      ],
+      "media": [
+        {
+          "path": "images/figure-1.png",
+          "role": "ILLUSTRATION",
+          "order": 0,
+          "caption": "Newton law figure",
+          "altText": "Newton law illustration"
+        }
+      ],
+      "solution": {
+        "languageCode": "bn",
+        "summary": "বল নির্ণয়।",
+        "steps": [
+          {
+            "stepNo": 1,
+            "title": "সূত্র",
+            "body": "$F=ma$"
+          },
+          {
+            "stepNo": 2,
+            "title": "ব্যাখ্যা",
+            "body": "ভর ও ত্বরণ ব্যবহার করে বল নির্ণয় করা হয়।",
+            "media": []
+          }
+        ]
+      }
+    }
+  ]
+}

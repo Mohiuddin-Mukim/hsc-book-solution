@@ -11,6 +11,7 @@ import ReviewQueuePage from "./pages/ReviewQueuePage";
 import MediaLibraryPage from "./pages/MediaLibraryPage";
 import GenericAdminPage from "./pages/GenericAdminPage";
 import CatalogPage from "./pages/CatalogPage";
+import ImportsPage from "./pages/ImportsPage";
 
 export default function App() {
   return (
@@ -40,21 +41,7 @@ export default function App() {
               <Route path="/review" element={<ReviewQueuePage />} />
             </Route>
             <Route element={<PermissionRoute permission="CONTENT_CREATE" />}>
-              <Route
-                path="/imports"
-                element={
-                  <GenericAdminPage
-                    title="Imports"
-                    eyebrow="INGESTION"
-                    description="Bulk JSON, CSV and media-pack import will plug into this workspace."
-                    items={[
-                      "Import jobs",
-                      "Validation errors",
-                      "Preview & stage",
-                    ]}
-                  />
-                }
-              />
+              <Route path="/imports" element={<ImportsPage />} />
             </Route>
             <Route element={<PermissionRoute permission="USER_READ" />}>
               <Route

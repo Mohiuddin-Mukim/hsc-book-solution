@@ -39,6 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 var principal = new AuthPrincipal(c.getSubject(), (String) c.get("email"));
                 SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(principal, null, auth));
             } catch (Exception ignored) {
+                System.err.println("JWT Validation Failed: " + ignored.getMessage());
+                ignored.printStackTrace();
                 SecurityContextHolder.clearContext();
             }
         }

@@ -40,6 +40,13 @@ public class Question {
     @Column(name = "created_by")
     public UUID createdBy;
 
+    @Column(name = "external_id", length = 160)
+    public String externalId;
+
+    public String getExternalId() {
+        return this.externalId;
+    }
+
     // Question.java ক্লাসে
     public UUID getId() {
         return this.id;

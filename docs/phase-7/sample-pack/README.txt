@@ -1,0 +1,1 @@
+ZIP this folder so content.json is at the ZIP root and images/figure-1.png is beside it. Replace chapterId with a real chapter UUID before import.
