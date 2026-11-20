@@ -1,6 +1,7 @@
 package bd.hscsolution.catalog.service;
 
 import bd.hscsolution.catalog.dto.AcademicDtos.*;
+import bd.hscsolution.catalog.dto.PublicCatalogDtos;
 import bd.hscsolution.catalog.entity.*;
 import bd.hscsolution.catalog.repository.*;
 import bd.hscsolution.security.AuditService;
@@ -349,6 +350,82 @@ public class AcademicCatalogService {
         return solutionDetail(s, s.currentVersionId == null ? null : sVersions.findById(s.currentVersionId).orElse(null));
     }
 
+    @Transactional(readOnly = true)
+    public Page<PublicCatalogDtos.SubjectItem> publicSubjects(int page, int size) {
+        return subjects.findByActiveTrueOrderByDisplayOrderAsc(pageable(page, size))
+                .map(s -> new PublicCatalogDtos.SubjectItem(s.getId(), s.code, s.name, s.displayOrder));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PublicCatalogDtos.PaperItem> publicPapers(UUID subjectId, int page, int size) {
+        if (!subjects.existsById(subjectId))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found");
+        return papers.findBySubjectIdOrderByDisplayOrderAsc(subjectId, pageable(page, size))
+                .map(p -> new PublicCatalogDtos.PaperItem(
+                        p.getId(), p.getSubject().getId(), p.getSubject().getCode(),
+                        p.code, p.name, p.paperNumber, p.displayOrder));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PublicCatalogDtos.BookItem> publicBooks(UUID subjectId, int page, int size) {
+        if (!subjects.existsById(subjectId))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found");
+        return books.findBySubjectIdOrderByTitleAsc(subjectId, pageable(page, size))
+                .map(b -> new PublicCatalogDtos.BookItem(
+                        b.getId(), b.getSubject().getId(), b.title, b.publisher, b.isbn));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PublicCatalogDtos.EditionItem> publicBookEditions(UUID bookId, int page, int size) {
+        if (!books.existsById(bookId))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found");
+        return editions.findByBookIdOrderByPublicationYearDescEditionLabelAsc(bookId, pageable(page, size))
+                .map(e -> new PublicCatalogDtos.EditionItem(
+                        e.getId(), e.getBook().getId(), e.editionLabel, e.publicationYear));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PublicCatalogDtos.ChapterItem> publicChapters(UUID paperId, int page, int size) {
+        if (!papers.existsById(paperId))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Paper not found");
+        return chapters.findByPaperIdOrderByDisplayOrderAsc(paperId, pageable(page, size))
+                .map(c -> new PublicCatalogDtos.ChapterItem(
+                        c.getId(), c.getPaper().getId(), c.getPaper().getCode(),
+                        c.code, c.title, c.displayOrder));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PublicCatalogDtos.TopicItem> publicTopics(UUID chapterId, int page, int size) {
+        if (!chapters.existsById(chapterId))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found");
+        return topics.findByChapterIdOrderByDisplayOrderAsc(chapterId, pageable(page, size))
+                .map(t -> new PublicCatalogDtos.TopicItem(
+                        t.getId(), t.getChapter().getId(), t.code, t.title, t.displayOrder));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PublicCatalogDtos.PublishedQuestionItem> publicQuestions(
+            UUID chapterId, QuestionType type, Difficulty difficulty,
+            java.math.BigDecimal minMarks, java.math.BigDecimal maxMarks, int page, int size) {
+        if (!chapters.existsById(chapterId))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Chapter not found");
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100), Sort.by("id").ascending());
+        return questions.searchPublished(chapterId, ContentStatus.PUBLISHED, type, difficulty, minMarks, maxMarks, pageable)
+                .map(q -> {
+                    QuestionVersion pv = q.publishedVersionId == null
+                            ? null : qVersions.findById(q.publishedVersionId).orElse(null);
+                    return new PublicCatalogDtos.PublishedQuestionItem(
+                            q.getId(), q.getChapter().getId(), q.getChapter().getCode(),
+                            q.questionType, q.difficulty,
+                            pv == null ? null : pv.marks,
+                            q.publishedVersionId);
+                });
+    }
+
+    private Pageable pageable(int page, int size) {
+        return PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100));
+    }
+
     public Page<QuestionSummary> questions(UUID chapterId, boolean publishedOnly, QuestionType type, Difficulty difficulty, java.math.BigDecimal minMarks, java.math.BigDecimal maxMarks, int page, int size) {
         Pageable p = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 100), Sort.by("id").ascending());
         return questions.search(chapterId, publishedOnly, ContentStatus.PUBLISHED, type, difficulty, minMarks, maxMarks, p)
@@ -362,7 +439,7 @@ public class AcademicCatalogService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Published question not found");
         QuestionVersion v = q.publishedVersionId == null ? null : qVersions.findById(q.publishedVersionId).orElse(null);
         if (v != null && !v.languageCode.equals(lang(language)))
-            v = qVersions.findByQuestionIdAndLanguageCodeOrderByVersionNoDesc(q.id, lang(language)).stream().findFirst().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Published language version not found"));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Published language version not found");
         return detail(q, v);
     }
 

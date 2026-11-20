@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Widget.Hsc.TextInput"
+        parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <!-- Corner Radius -->
+        <item name="boxCornerRadiusTopStart">14dp</item>
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+
+        <!-- Normal Border -->
+        <item name="boxStrokeColor">@color/primary</item>
+        <item name="endIconTint">@color/primary</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="boxStrokeWidth">1dp</item>
+
+        <!-- Focused Border -->
+        <item name="boxStrokeWidthFocused">2dp</item>
+
+        <!-- Background -->
+        <item name="boxBackgroundColor">@color/white</item>
+
+        <!-- Hint Color -->
+        <item name="hintTextColor">@color/text_secondary</item>
+
+        <!-- Text Color -->
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+
+        <!-- Error Color -->
+        <item name="boxStrokeErrorColor">@color/error</item>
+
+
+    </style>
+
+</resources>

@@ -1,5 +1,29 @@
 <resources>
-<string name="app_name">HSC Academic Solution</string>
-<string name="welcome_title">HSC Academic Solution</string>
-<string name="phase1_status">Development foundation is ready.</string>
+    <string name="app_name">HSC Academic Solution</string>
+    <string name="welcome_title">HSC Academic Solution</string>
+    <string name="phase1_status">Development foundation is ready.</string>
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Sign in to continue your learning journey.</string>
+    <string name="email_hint">Email address</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Sign in</string>
+    <string name="home_title">What do you want to study?</string>
+    <string name="home_subtitle">Choose a subject to continue.</string>
+    <string name="logout_button">Log out</string>
+    <string name="register_title">Create your account</string>
+    <string name="register_subtitle">Create a student account to access your learning space.</string>
+    <string name="name_hint">Full name</string>
+    <string name="confirm_password_hint">Confirm password</string>
+    <string name="language_label">Preferred language</string>
+    <string name="create_account_button">Create account</string>
+    <string name="back_to_login">Back to sign in</string>
+    <string name="no_account_prompt">New to HSC Academic Solution?</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
+    <string name="empty_subjects">No subjects are available yet.</string>
+    <string name="empty_papers">No papers are available yet.</string>
+    <string name="empty_chapters">No chapters are available yet.</string>
+    <string name="empty_questions">No published questions are available yet.</string>
+    <string name="retry">Try again</string>
+    <string name="catalog_load_error">Could not load content. Please check your connection and try again.</string>
 </resources>

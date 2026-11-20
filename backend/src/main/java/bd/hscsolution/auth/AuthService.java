@@ -3,10 +3,12 @@ package bd.hscsolution.auth;
 import bd.hscsolution.security.*;
 import java.time.Instant;
 import java.util.*;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -28,37 +30,102 @@ public class AuthService {
     this.audit = audit;
   }
 
-  public AuthDtos.LoginResponse login(AuthDtos.LoginRequest req, String ip, String clientType) {
-    String key = (req.email().trim().toLowerCase(Locale.ROOT)) + "|" + ip;
+  /**
+   * Public registration. The client cannot choose a role; every public registration
+   * is assigned STUDENT by the server.
+   */
+  @Transactional
+  public AuthDtos.RegisterResponse register(AuthDtos.RegisterRequest req, String ip) {
+    String email = req.email().trim().toLowerCase(Locale.ROOT);
+    String key = "register|" + email + "|" + ip;
     if (!limiter.allow(key, p.loginRateLimit(), p.loginRateWindowSeconds()))
-      throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too many login attempts. Try again later.");
-    var users = db.query("select id,email,password_hash,display_name,status from app_user where lower(email)=lower(?)",
-        (rs, n) -> Map.of("id", rs.getObject("id", UUID.class), "email", rs.getString("email"), "hash",
-            rs.getString("password_hash"), "name", rs.getString("display_name"), "status", rs.getString("status")),
-        req.email());
-    if (users.isEmpty() || users.get(0).get("hash") == null
-        || !encoder.matches(req.password(), (String) users.get(0).get("hash"))
-        || !"ACTIVE".equals(users.get(0).get("status"))) {
-      audit.record(null, "LOGIN_FAILED", "APP_USER", null, Map.of("email", req.email()), null);
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+      throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+          "Too many registration attempts. Try again later.");
+
+    String preferredLanguage = req.preferredLanguage() == null || req.preferredLanguage().isBlank()
+        ? "bn" : req.preferredLanguage().trim().toLowerCase(Locale.ROOT);
+    if (!preferredLanguage.equals("bn") && !preferredLanguage.equals("en"))
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Preferred language must be bn or en");
+
+    Integer exists = db.queryForObject("select count(*) from app_user where lower(email)=lower(?)",
+        Integer.class, email);
+    if (exists != null && exists > 0)
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "An account with this email already exists.");
+
+    UUID userId = UUID.randomUUID();
+    String passwordHash = encoder.encode(req.password().trim());
+
+    try {
+      db.update(
+          "insert into app_user(id,email,password_hash,display_name,preferred_language,status,email_verified) "
+              + "values(?,?,?,?,?,'ACTIVE',false)",
+          userId, email, passwordHash, req.displayName().trim(), preferredLanguage);
+
+      UUID studentRoleId = db.queryForObject(
+          "select id from role where code='STUDENT'", UUID.class);
+      if (studentRoleId == null)
+        throw new IllegalStateException("STUDENT role is missing. Check V8 migration.");
+
+      db.update("insert into user_role(user_id,role_id) values(?,?)", userId, studentRoleId);
+
+      audit.record(userId, "REGISTER", "APP_USER", userId,
+          Map.of("clientType", "ANDROID", "role", "STUDENT"), null);
+      limiter.clear(key);
+
+      return new AuthDtos.RegisterResponse(
+          userId.toString(), email, req.displayName().trim(), "ACTIVE", "STUDENT", preferredLanguage);
+    } catch (DuplicateKeyException ex) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "An account with this email already exists.");
     }
-    UUID userId = (UUID) users.get(0).get("id");
-    var roles = roles(userId);
-    var perms = permissions(userId);
-    String access = jwt.createAccessToken(userId.toString(), req.email(), roles, perms);
-    String raw = UUID.randomUUID() + "." + UUID.randomUUID();
-    String hash = Hashing.sha256(raw);
-    Instant exp = Instant.now().plusSeconds(p.refreshTokenDays() * 86400L);
-    db.update("insert into refresh_token(user_id,token_hash,expires_at) values(?,?,?)", userId, hash,
-        java.sql.Timestamp.from(exp));
-    audit.record(userId, "LOGIN_SUCCESS", "APP_USER", userId, Map.of("clientType", clientType), null);
-    limiter.clear(key);
-    String returned = "ANDROID".equalsIgnoreCase(clientType) ? raw : null;
-    return new AuthDtos.LoginResponse(access, returned, jwt.expiration(access), userId.toString(), req.email(), roles,
-        perms);
   }
 
-  public AuthDtos.LoginResponse refresh(String raw) {
+    public AuthDtos.LoginResponse login(AuthDtos.LoginRequest req, String ip, String clientType) {
+        String key = (req.email().trim().toLowerCase(Locale.ROOT)) + "|" + ip;
+        if (!limiter.allow(key, p.loginRateLimit(), p.loginRateWindowSeconds()))
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too many login attempts. Try again later.");
+
+        var users = db.query("select id,email,password_hash,display_name,status from app_user where lower(email)=lower(?)",
+                (rs, n) -> {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", rs.getObject("id", UUID.class));
+                    m.put("email", rs.getString("email"));
+                    m.put("hash", rs.getString("password_hash"));
+                    m.put("name", rs.getString("display_name"));
+                    m.put("status", rs.getString("status"));
+                    return m;
+                },
+                req.email());
+
+        if (users.isEmpty() || users.get(0).get("hash") == null
+                || !encoder.matches(req.password(), (String) users.get(0).get("hash"))
+                || !"ACTIVE".equals(users.get(0).get("status"))) {
+            audit.record(null, "LOGIN_FAILED", "APP_USER", null, Map.of("email", req.email()), null);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        }
+
+        UUID userId = (UUID) users.get(0).get("id");
+        var roles = roles(userId);
+        var perms = permissions(userId);
+        String access = jwt.createAccessToken(userId.toString(), req.email(), roles, perms);
+        String raw = UUID.randomUUID() + "." + UUID.randomUUID();
+        String hash = Hashing.sha256(raw);
+        Instant exp = Instant.now().plusSeconds(p.refreshTokenDays() * 86400L);
+
+        db.update("insert into refresh_token(user_id,token_hash,expires_at) values(?,?,?)", userId, hash,
+                java.sql.Timestamp.from(exp));
+
+        String safeClientType = (clientType != null && !clientType.isBlank()) ? clientType : "UNKNOWN";
+        audit.record(userId, "LOGIN_SUCCESS", "APP_USER", userId, Map.of("clientType", safeClientType), null);
+        limiter.clear(key);
+
+        String returned = "ANDROID".equalsIgnoreCase(safeClientType) ? raw : null;
+        return new AuthDtos.LoginResponse(access, returned, jwt.expiration(access), userId.toString(), req.email(), roles,
+                perms);
+    }
+
+
+    public AuthDtos.LoginResponse refresh(String raw) {
     if (raw == null || raw.isBlank())
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token is required");
     String h = Hashing.sha256(raw);
