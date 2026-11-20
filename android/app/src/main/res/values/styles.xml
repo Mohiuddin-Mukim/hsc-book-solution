@@ -26,7 +26,6 @@
         <item name="hintTextColor">@color/text_secondary</item>
 
         <!-- Text Color -->
-        <item name="android:textColor">@color/text_primary</item>
         <item name="android:textColorHint">@color/text_secondary</item>
 
         <!-- Error Color -->
