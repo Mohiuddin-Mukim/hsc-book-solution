@@ -56,6 +56,24 @@ public final class ContentRepository {
         return requireBody(r.body());
     }
 
+    public BookmarkModels.BookmarkResponse bookmark(String questionId) throws Exception {
+        Response<BookmarkModels.BookmarkResponse> r = api.bookmark(questionId).execute();
+        if (!r.isSuccessful()) throw ApiErrorMapper.from(r);
+        return requireBody(r.body());
+    }
+
+    public BookmarkModels.BookmarkResponse addBookmark(String questionId) throws Exception {
+        Response<BookmarkModels.BookmarkResponse> r = api.addBookmark(questionId).execute();
+        if (!r.isSuccessful()) throw ApiErrorMapper.from(r);
+        return requireBody(r.body());
+    }
+
+    public BookmarkModels.BookmarkResponse removeBookmark(String questionId) throws Exception {
+        Response<BookmarkModels.BookmarkResponse> r = api.removeBookmark(questionId).execute();
+        if (!r.isSuccessful()) throw ApiErrorMapper.from(r);
+        return requireBody(r.body());
+    }
+
     private static <T> T requireBody(T body) throws java.io.IOException {
         if (body == null) throw new java.io.IOException("Could not load content. The server returned an empty response.");
         return body;

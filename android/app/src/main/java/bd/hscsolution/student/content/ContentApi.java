@@ -44,6 +44,15 @@ public interface ContentApi {
     @GET("catalog/questions/{id}")
     Call<CatalogModels.QuestionDetail> question(@Path("id") String id, @Query("language") String language);
 
+    @GET("student/bookmarks/{questionId}")
+    Call<BookmarkModels.BookmarkResponse> bookmark(@Path("questionId") String questionId);
+
+    @retrofit2.http.PUT("student/bookmarks/{questionId}")
+    Call<BookmarkModels.BookmarkResponse> addBookmark(@Path("questionId") String questionId);
+
+    @retrofit2.http.DELETE("student/bookmarks/{questionId}")
+    Call<BookmarkModels.BookmarkResponse> removeBookmark(@Path("questionId") String questionId);
+
     // Kept for the Phase 8 contract smoke test.
     @GET("catalog/questions/{id}")
     Call<JsonObject> questionJson(@Path("id") String id, @Query("language") String language);

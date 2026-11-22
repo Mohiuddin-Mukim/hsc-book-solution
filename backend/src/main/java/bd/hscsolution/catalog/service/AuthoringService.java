@@ -281,12 +281,18 @@ public class AuthoringService {
             if (a.getMediaAsset() == null) continue;
             MediaAsset m = media.findById(a.getMediaAsset().getId())
                     .orElseThrow(() -> conflict("Referenced media asset is missing"));
-            if (m.lifecycleState != MediaEnums.LifecycleState.READY)
+            System.out.println("QMedia check -> id: " + m.getId()
+                    + ", state: " + m.getLifecycleState()
+                    + ", key: " + m.getStorageKey());
+            if (m.getLifecycleState() != MediaEnums.LifecycleState.READY)
                 throw conflict("Referenced media asset is not ready");
             try {
-                if (!storage.exists(m.storageKey))
+                boolean exists = storage.exists(m.getStorageKey());
+                System.out.println("QMedia storage.exists(" + m.getStorageKey() + ") -> " + exists);
+                if (!exists)
                     throw conflict("Referenced media object is not accessible");
             } catch (Exception e) {
+                System.out.println("QMedia storage error -> " + e.getClass().getName() + ": " + e.getMessage());
                 throw conflict("Referenced media object is not accessible");
             }
         }
@@ -302,12 +308,19 @@ public class AuthoringService {
                 if (a.getMediaAsset() == null) continue;
                 MediaAsset m = media.findById(a.getMediaAsset().getId())
                         .orElseThrow(() -> conflict("Referenced media asset is missing"));
-                if (m.lifecycleState != MediaEnums.LifecycleState.READY)
+                System.out.println("SMedia check -> step: " + step.getId()
+                        + ", id: " + m.getId()
+                        + ", state: " + m.getLifecycleState()
+                        + ", key: " + m.getStorageKey());
+                if (m.getLifecycleState() != MediaEnums.LifecycleState.READY)
                     throw conflict("Referenced media asset is not ready");
                 try {
-                    if (!storage.exists(m.storageKey))
+                    boolean exists = storage.exists(m.getStorageKey());
+                    System.out.println("SMedia storage.exists(" + m.getStorageKey() + ") -> " + exists);
+                    if (!exists)
                         throw conflict("Referenced media object is not accessible");
                 } catch (Exception e) {
+                    System.out.println("SMedia storage error -> " + e.getClass().getName() + ": " + e.getMessage());
                     throw conflict("Referenced media object is not accessible");
                 }
             }
@@ -412,7 +425,34 @@ public class AuthoringService {
                 .sorted(Comparator.comparingInt(x -> x.stepNo))
                 .map(x -> new AcademicDtos.SolutionStepDto(x.getId(), x.stepNo, x.title, x.body, List.of()))
                 .toList();
-        return new AcademicDtos.SolutionVersionDetail(v.getId(), v.versionNo, v.languageCode, v.summary, v.lockVersion, ss);
+
+        String finalAnswer = extractFinalAnswer(v.metadata);
+
+        return new AcademicDtos.SolutionVersionDetail(
+                v.getId(),
+                v.versionNo,
+                v.languageCode,
+                v.summary,
+                finalAnswer,
+                v.lockVersion,
+                ss
+        );
+    }
+
+    private String extractFinalAnswer(String metadataJson) {
+        if (metadataJson == null || metadataJson.isBlank()) {
+            return null;
+        }
+        try {
+            var node = mapper.readTree(metadataJson);
+            if (node != null && node.hasNonNull("finalAnswer")) {
+                String value = node.get("finalAnswer").asText().trim();
+                return value.isEmpty() ? null : value;
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

@@ -6,6 +6,7 @@ import android.widget.*;
 import androidx.annotation.*;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import bd.hscsolution.student.HscApplication;
@@ -25,7 +26,10 @@ public final class QuestionListFragment extends Fragment {
         ProgressBar progress=view.findViewById(R.id.catalogProgress);TextView error=view.findViewById(R.id.catalogError);
         TextView empty=view.findViewById(R.id.emptyState);Button retry=view.findViewById(R.id.retryButton);
         TextView pageLabel=view.findViewById(R.id.pageLabel);Button prev=view.findViewById(R.id.prevButton),next=view.findViewById(R.id.nextButton);
-        QuestionAdapter adapter=new QuestionAdapter();list.setAdapter(adapter);
+        QuestionAdapter adapter=new QuestionAdapter(item -> {
+            Bundle b=new Bundle(); b.putString("questionId",item.id()); b.putString("language","bn");
+            Navigation.findNavController(view).navigate(R.id.action_question_list_to_detail,b);
+        });list.setAdapter(adapter);
         typeSpinner=view.findViewById(R.id.typeSpinner);difficultySpinner=view.findViewById(R.id.difficultySpinner);
         minMarks=view.findViewById(R.id.minMarksInput);maxMarks=view.findViewById(R.id.maxMarksInput);
         String[] types={"All types","MCQ","CQ","SHORT","NUMERICAL"};

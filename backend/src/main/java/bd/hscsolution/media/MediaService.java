@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Service
 public class MediaService {
@@ -216,7 +217,17 @@ public class MediaService {
     private String trim(String x){return x==null||x.isBlank()?null:x.trim();}
     private <T>T or404(Optional<T> x,String w){return x.orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,w+" not found"));}
     private MediaDtos.MediaAssetResponse dto(MediaAsset a,String role,int order){return dto(a,role,order,assets.questionUsage(a.id)+assets.stepUsage(a.id));}
-    private MediaDtos.MediaAssetResponse dto(MediaAsset a,String role,int order,long usage){
-        return new MediaDtos.MediaAssetResponse(a.id,role==null?"":role,order,a.caption,a.altText,a.width==null?0:a.width,a.height==null?0:a.height,a.byteSize,a.mimeType,a.checksumSha256,a.lifecycleState.name(),"/api/v1/media/"+a.id,usage);
+    private MediaDtos.MediaAssetResponse dto(MediaAsset a, String role, int order, long usage) {
+        String fullUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/v1/media/")
+                .path(a.id.toString())
+                .toUriString();
+
+        return new MediaDtos.MediaAssetResponse(
+                a.id, role == null ? "" : role, order, a.caption, a.altText,
+                a.width == null ? 0 : a.width, a.height == null ? 0 : a.height,
+                a.byteSize, a.mimeType, a.checksumSha256,
+                a.lifecycleState.name(), fullUrl, usage
+        );
     }
 }

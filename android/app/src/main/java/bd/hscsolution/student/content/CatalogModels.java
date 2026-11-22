@@ -35,10 +35,10 @@ public final class CatalogModels {
     public record McqOption(String id, String optionKey, String optionText, boolean correct, int displayOrder) {}
     public record McqExplanation(String id, String languageCode, String explanation) {}
     public record SolutionDetail(String id, String status, String currentVersionId, SolutionVersionDetail version) {}
-    public record SolutionVersionDetail(String id, int versionNo, String languageCode, String summary,
+    public record SolutionVersionDetail(String id, int versionNo, String languageCode, String summary, String finalAnswer,
                                         Long lockVersion, List<SolutionStep> steps) {}
     public record SolutionStep(String id, int stepNo, String title, String body, List<MediaAsset> media) {}
     public record MediaAsset(String id, String attachmentRole, int displayOrder, String caption, String altText,
                              int width, int height, long byteSize, String mimeType, String checksumSha256,
-                             String lifecycleState, String deliveryPath, long usageCount) {}
+                             String lifecycleState, @SerializedName("deliveryUrl") String deliveryPath, long usageCount) {}
 }

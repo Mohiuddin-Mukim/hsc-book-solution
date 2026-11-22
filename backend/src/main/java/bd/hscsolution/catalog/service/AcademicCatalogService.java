@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.*;
 
@@ -36,6 +38,7 @@ public class AcademicCatalogService {
     private final bd.hscsolution.media.QuestionMediaAttachmentRepository questionMedia;
     private final bd.hscsolution.media.SolutionStepMediaAttachmentRepository stepMedia;
     private final bd.hscsolution.media.MediaAssetRepository mediaAssets;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public AcademicCatalogService(SubjectRepository subjects, PaperRepository papers, BookRepository books, BookEditionRepository editions, ChapterRepository chapters, TopicRepository topics, QuestionRepository questions, QuestionVersionRepository qVersions, SolutionRepository solutions, SolutionVersionRepository sVersions, McqOptionRepository options, McqExplanationRepository explanations, SolutionStepRepository steps, AuditService audit, bd.hscsolution.catalog.repository.TagRepository tags, bd.hscsolution.catalog.repository.QuestionTagRepository questionTags,
                                   bd.hscsolution.media.QuestionMediaAttachmentRepository questionMedia,
@@ -448,7 +451,11 @@ public class AcademicCatalogService {
                 q.getId(), q.getChapter().getId(), q.getChapter().getCode(), null,
                 q.questionType, q.difficulty, q.status,
                 v == null ? null : versionDetail(v),
-                q.currentVersionId == null ? null : solutions.findByQuestionId(q.getId()).map(s -> solutionDetail(s, s.publishedVersionId == null ? null : sVersions.findById(s.publishedVersionId).orElse(null))).orElse(null)
+                q.currentVersionId == null ? null : solutions.findByQuestionId(q.getId()).map(s -> {
+                    UUID versionId = q.status == ContentStatus.PUBLISHED && s.publishedVersionId != null
+                            ? s.publishedVersionId : s.currentVersionId;
+                    return solutionDetail(s, versionId == null ? null : sVersions.findById(versionId).orElse(null));
+                }).orElse(null)
         );
     }
 
@@ -470,7 +477,8 @@ public class AcademicCatalogService {
                         x.width == null ? 0 : x.width, x.height == null ? 0 : x.height,
                         x.byteSize, x.mimeType, x.checksumSha256,
                         x.getLifecycleState() != null ? x.getLifecycleState().name() : "PENDING",
-                        "/api/v1/media/" + x.getId(), mediaAssets.questionUsage(x.getId()) + mediaAssets.stepUsage(x.getId()))).orElse(null))
+                        ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/media/").path(x.getId().toString()).toUriString(),
+                        mediaAssets.questionUsage(x.getId()) + mediaAssets.stepUsage(x.getId()))).orElse(null))
                 .filter(Objects::nonNull).toList();
 
         return new QuestionVersionDetail(v.getId(), v.versionNo, v.languageCode, v.stem, v.marks, v.lockVersion, os, es, media);
@@ -494,9 +502,17 @@ public class AcademicCatalogService {
                     var media = stepMedia.findBySolutionStepIdOrderByDisplayOrderAsc(x.getId()).stream()
                             .map(a -> a.getMediaAsset() == null ? null : mediaAssets.findById(a.getMediaAsset().getId())
                                     .map(m -> new bd.hscsolution.media.MediaDtos.MediaAssetResponse(
-                                            m.getId(), a.attachmentRole, a.displayOrder, m.caption, m.altText,
-                                            m.width == null ? 0 : m.width, m.height == null ? 0 : m.height,
-                                            m.byteSize, m.mimeType, m.checksumSha256, m.lifecycleState.name(),
+                                            m.getId(),
+                                            a.attachmentRole,
+                                            a.displayOrder,
+                                            m.caption,
+                                            m.altText,
+                                            m.width == null ? 0 : m.width,
+                                            m.height == null ? 0 : m.height,
+                                            m.byteSize,
+                                            m.mimeType,
+                                            m.checksumSha256,
+                                            m.lifecycleState != null ? m.lifecycleState.name() : null, // <-- এখানে সমাধান করা হয়েছে
                                             "/api/v1/media/" + m.getId(),
                                             mediaAssets.questionUsage(m.getId()) + mediaAssets.stepUsage(m.getId())))
                                     .orElse(null))
@@ -505,7 +521,19 @@ public class AcademicCatalogService {
                     return new SolutionStepDto(x.getId(), x.stepNo, x.title, x.body, media);
                 })
                 .toList();
-        return new SolutionVersionDetail(v.getId(), v.versionNo, v.languageCode, v.summary, v.lockVersion, ss);
+        return new SolutionVersionDetail(v.getId(), v.versionNo, v.languageCode, v.summary, finalAnswer(v.metadata), v.lockVersion, ss);
+    }
+
+
+    private String finalAnswer(String metadata) {
+        if (metadata == null || metadata.isBlank()) return null;
+        try {
+            var node = objectMapper.readTree(metadata);
+            var answer = node.get("finalAnswer");
+            return answer == null || answer.isNull() ? null : answer.asText();
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
 

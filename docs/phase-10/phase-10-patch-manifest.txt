@@ -1,0 +1,12 @@
+Phase 10 patch generated against the uploaded Phase 0-10 Android/backend project.
+Scope:
+- Student authenticated bookmark API backed by existing bookmark table.
+- Published question/solution reader with ordered media.
+- LaTeX reader via restricted WebView + MathJax.
+- Zoomable Glide-backed images with bounded decode.
+- Final answer exposed from existing solution_version.metadata.finalAnswer.
+- Reader scroll-position restoration.
+- Question list -> detail navigation.
+- Day/Night reader palette.
+- Android emulator API base URL set to 10.0.2.2.
+No admin/node_modules/.git/build artifacts included.

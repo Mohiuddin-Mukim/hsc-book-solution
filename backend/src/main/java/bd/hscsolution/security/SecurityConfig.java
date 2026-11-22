@@ -29,7 +29,7 @@ public class SecurityConfig {
       .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .exceptionHandling(e -> e.authenticationEntryPoint(entryPoint).accessDeniedHandler(deniedHandler))
       .authorizeHttpRequests(a -> a
-        .requestMatchers("/api/v1/auth/**", "/api/v1/catalog/**", "/api/v1/health", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health").permitAll()
+        .requestMatchers("/api/v1/auth/**", "/api/v1/media/**" , "/api/v1/catalog/**", "/api/v1/health", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health").permitAll()
         .requestMatchers(HttpMethod.GET, "/api/v1/admin/audit/**").hasAuthority("PERM_AUDIT_READ")
         .anyRequest().authenticated())
       .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

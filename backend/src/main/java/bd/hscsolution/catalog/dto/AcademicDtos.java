@@ -32,7 +32,7 @@ public final class AcademicDtos {
     public record McqOptionDto(UUID id,String optionKey,String optionText,boolean correct,int displayOrder) {}
     public record McqExplanationDto(UUID id,String languageCode,String explanation) {}
     public record SolutionDetail(UUID id,ContentStatus status,UUID currentVersionId,SolutionVersionDetail version) {}
-    public record SolutionVersionDetail(UUID id,int versionNo,String languageCode,String summary,Long lockVersion,List<SolutionStepDto> steps) {}
+    public record SolutionVersionDetail(UUID id,int versionNo,String languageCode,String summary,String finalAnswer,Long lockVersion,List<SolutionStepDto> steps) {}
     public record SolutionStepDto(UUID id,int stepNo,String title,String body,List<bd.hscsolution.media.MediaDtos.MediaAssetResponse> media) {}
     public record WorkflowRequest(ContentStatus targetStatus,String note) {}
     public record TagRequest(String code,String label) {}
