@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/surface">
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:padding="16dp" android:gravity="center_vertical">
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/searchInput" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="Search questions" android:singleLine="true"
+                android:imeOptions="actionSearch"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filterButton" android:layout_width="wrap_content" android:layout_height="48dp"
+            android:layout_marginStart="8dp" android:text="Filter"/>
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center_vertical">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="Search by ID, code, Bangla or English"/>
+        <TextView android:id="@+id/searchPageLabel" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text=""/>
+    </LinearLayout>
+
+    <ProgressBar android:id="@+id/searchProgress" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
+        android:layout_margin="12dp" android:visibility="gone"/>
+
+    <TextView android:id="@+id/searchError" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:padding="16dp" android:textColor="@color/error"
+        android:visibility="gone"/>
+
+    <TextView android:id="@+id/searchEmpty" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:padding="28dp" android:gravity="center"
+        android:textColor="@color/text_secondary"/>
+
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/searchResultList"
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:padding="12dp" android:clipToPadding="false"/>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center" android:padding="8dp">
+        <Button android:id="@+id/searchPrevButton" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Previous"/>
+        <Button android:id="@+id/searchNextButton" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Next"/>
+        <Button android:id="@+id/clearSearchButton" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Clear"/>
+    </LinearLayout>
+</LinearLayout>

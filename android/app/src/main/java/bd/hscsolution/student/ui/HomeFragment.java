@@ -28,6 +28,8 @@ public final class HomeFragment extends Fragment {
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle state) {
         super.onViewCreated(view, state);
 
+        view.findViewById(R.id.searchButton).setOnClickListener(v ->
+                Navigation.findNavController(view).navigate(R.id.action_home_to_search));
         TextView network = view.findViewById(R.id.networkState);
         ProgressBar progress = view.findViewById(R.id.catalogProgress);
         TextView error = view.findViewById(R.id.catalogError);

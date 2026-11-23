@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:padding="24dp">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Search filters" android:textSize="20sp" android:textStyle="bold"
+        android:textColor="@color/text_primary"/>
+    <Spinner android:id="@+id/sheetSubject" android:layout_width="match_parent" android:layout_height="48dp"
+        android:layout_marginTop="16dp"/>
+    <Spinner android:id="@+id/sheetPaper" android:layout_width="match_parent" android:layout_height="48dp"
+        android:layout_marginTop="8dp"/>
+    <Spinner android:id="@+id/sheetChapter" android:layout_width="match_parent" android:layout_height="48dp"
+        android:layout_marginTop="8dp"/>
+    <Spinner android:id="@+id/sheetLanguage" android:layout_width="match_parent" android:layout_height="48dp"
+        android:layout_marginTop="8dp"/>
+    <Spinner android:id="@+id/sheetType" android:layout_width="match_parent" android:layout_height="48dp"
+        android:layout_marginTop="8dp"/>
+    <Spinner android:id="@+id/sheetDifficulty" android:layout_width="match_parent" android:layout_height="48dp"
+        android:layout_marginTop="8dp"/>
+    <com.google.android.material.button.MaterialButton android:id="@+id/applySearchFilters"
+        android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp"
+        android:text="Apply filters"/>
+</LinearLayout>

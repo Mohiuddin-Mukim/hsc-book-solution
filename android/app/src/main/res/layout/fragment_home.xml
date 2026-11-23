@@ -37,6 +37,14 @@
 
         <!-- Network Status -->
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/searchButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:text="Search questions"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
         <TextView
             android:id="@+id/networkState"
             android:layout_width="wrap_content"

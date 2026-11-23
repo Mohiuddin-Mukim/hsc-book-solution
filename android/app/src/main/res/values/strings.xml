@@ -26,4 +26,7 @@
     <string name="empty_questions">No published questions are available yet.</string>
     <string name="retry">Try again</string>
     <string name="catalog_load_error">Could not load content. Please check your connection and try again.</string>
+    <string name="search_questions">Search questions</string>
+    <string name="search_hint">Search by question ID, code, Bangla or English terms</string>
+    <string name="search_no_results">No results found. Try another spelling, ID, or filter.</string>
 </resources>

@@ -9,6 +9,14 @@ public final class CatalogModels {
 
     public record PageResponse<T>(
             List<T> items, int page, int size, long totalItems, int totalPages) {}
+    public record SearchPageResponse(
+            List<SearchResult> content, int page, int size, long totalElements, int totalPages) {}
+    public record SearchResult(
+            String id, String externalId, String chapterId, String chapterCode, String chapterTitle,
+            String subjectId, String subjectCode, String subjectName,
+            String paperId, String paperCode, String paperName,
+            String languageCode, String questionType, String difficulty,
+            BigDecimal marks, String versionId, double relevanceScore) {}
 
     public record SubjectItem(String id, String code, String name, int displayOrder) {}
     public record PaperItem(String id, String subjectId, String subjectCode, String code, String name,

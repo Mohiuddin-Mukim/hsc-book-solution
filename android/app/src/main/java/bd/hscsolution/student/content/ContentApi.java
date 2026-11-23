@@ -53,6 +53,19 @@ public interface ContentApi {
     @retrofit2.http.DELETE("student/bookmarks/{questionId}")
     Call<BookmarkModels.BookmarkResponse> removeBookmark(@Path("questionId") String questionId);
 
+
+    @GET("catalog/search")
+    Call<CatalogModels.SearchPageResponse> search(
+            @Query("q") String query,
+            @Query("subjectId") String subjectId,
+            @Query("paperId") String paperId,
+            @Query("chapterId") String chapterId,
+            @Query("language") String language,
+            @Query("type") String type,
+            @Query("difficulty") String difficulty,
+            @Query("page") int page,
+            @Query("size") int size);
+
     // Kept for the Phase 8 contract smoke test.
     @GET("catalog/questions/{id}")
     Call<JsonObject> questionJson(@Path("id") String id, @Query("language") String language);

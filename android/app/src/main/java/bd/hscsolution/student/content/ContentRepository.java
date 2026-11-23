@@ -56,6 +56,16 @@ public final class ContentRepository {
         return requireBody(r.body());
     }
 
+
+    public CatalogModels.SearchPageResponse search(
+            String query, String subjectId, String paperId, String chapterId,
+            String language, String type, String difficulty, int page, int size) throws Exception {
+        Response<CatalogModels.SearchPageResponse> r = api.search(
+                query, subjectId, paperId, chapterId, language, type, difficulty, page, size).execute();
+        if (!r.isSuccessful()) throw ApiErrorMapper.from(r);
+        return requireBody(r.body());
+    }
+
     public BookmarkModels.BookmarkResponse bookmark(String questionId) throws Exception {
         Response<BookmarkModels.BookmarkResponse> r = api.bookmark(questionId).execute();
         if (!r.isSuccessful()) throw ApiErrorMapper.from(r);
