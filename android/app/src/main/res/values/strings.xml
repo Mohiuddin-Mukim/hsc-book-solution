@@ -29,4 +29,9 @@
     <string name="search_questions">Search questions</string>
     <string name="search_hint">Search by question ID, code, Bangla or English terms</string>
     <string name="search_no_results">No results found. Try another spelling, ID, or filter.</string>
+    <string name="download_offline">Offline</string>
+    <string name="offline_queued">Download queued</string>
+    <string name="offline_downloading">Downloading…</string>
+    <string name="offline_complete">Downloaded</string>
+    <string name="offline_failed">Download failed</string>
 </resources>

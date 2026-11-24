@@ -73,3 +73,12 @@ logging:
     root: INFO
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
+
+offline:
+  enforce-entitlement: ${OFFLINE_ENFORCE_ENTITLEMENT:false}
+  default-grace-minutes: ${OFFLINE_DEFAULT_GRACE_MINUTES:180}
+  math-renderer: MathJax
+  math-renderer-version: 3-bundled
+  math-asset-path: /android_asset/mathjax/tex-chtml.js
+  math-asset-bytes: ${OFFLINE_MATH_ASSET_BYTES:1160989}
+  math-asset-sha256: ${OFFLINE_MATH_ASSET_SHA256:fd78b0bbfee93895ff85906f486c072671bb1598e4858129b65f1adcc607bf87}

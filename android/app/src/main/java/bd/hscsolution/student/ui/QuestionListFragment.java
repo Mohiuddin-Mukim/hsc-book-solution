@@ -14,12 +14,13 @@ import bd.hscsolution.student.R;
 import bd.hscsolution.student.content.*;
 
 public final class QuestionListFragment extends Fragment {
-    private CatalogViewModel vm; private String chapterId; private int page=0;
+    private CatalogViewModel vm; private String chapterId; private String offlineManifestId; private int page=0;
     private Spinner typeSpinner,difficultySpinner; private EditText minMarks,maxMarks;
     public QuestionListFragment(){super(R.layout.fragment_question_list);}
     @Override public void onViewCreated(@NonNull View view,@Nullable Bundle state){
         super.onViewCreated(view,state);
         chapterId=getArguments().getString("chapterId");
+        offlineManifestId=getArguments().getString("offlineManifestId");
         String name=getArguments().getString("chapterName");
         ((TextView)view.findViewById(R.id.pageTitle)).setText(name==null?"Questions":name);
         RecyclerView list=view.findViewById(R.id.questionList);list.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -36,6 +37,10 @@ public final class QuestionListFragment extends Fragment {
         String[] diffs={"All difficulties","EASY","MEDIUM","HARD"};
         typeSpinner.setAdapter(new ArrayAdapter<>(requireContext(),android.R.layout.simple_spinner_dropdown_item,types));
         difficultySpinner.setAdapter(new ArrayAdapter<>(requireContext(),android.R.layout.simple_spinner_dropdown_item,diffs));
+        if (offlineManifestId != null) {
+            View filterCard = (View) typeSpinner.getParent().getParent().getParent();
+            filterCard.setVisibility(View.GONE);
+        }
 
         var c=((HscApplication)requireActivity().getApplication()).container();
         vm=new ViewModelProvider(this,new CatalogViewModelFactory(c.contentRepository)).get(CatalogViewModel.class);
@@ -63,6 +68,10 @@ public final class QuestionListFragment extends Fragment {
         String min=minMarks.getText()==null?null:minMarks.getText().toString().trim();
         String max=maxMarks.getText()==null?null:maxMarks.getText().toString().trim();
         if(min!=null&&min.isBlank())min=null;if(max!=null&&max.isBlank())max=null;
-        vm.questions(chapterId,type,diff,min,max,page);
+        if (offlineManifestId != null) {
+            vm.offlineQuestions(offlineManifestId, "bn", type, diff, min, max, page);
+        } else {
+            vm.questions(chapterId,type,diff,min,max,page);
+        }
     }
 }

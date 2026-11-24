@@ -441,7 +441,12 @@ public class AcademicCatalogService {
         if (q.status != ContentStatus.PUBLISHED)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Published question not found");
         QuestionVersion v = q.publishedVersionId == null ? null : qVersions.findById(q.publishedVersionId).orElse(null);
-        if (v != null && !v.languageCode.equals(lang(language)))
+        String targetLang = lang(language);
+//        if (v != null && !targetLang.equalsIgnoreCase(v.languageCode)) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+//                    "Published language version not found for question: " + q.getId() + ", expected: " + targetLang + ", found: " + v.languageCode);
+//        }
+        if (v != null && !targetLang.equalsIgnoreCase(v.getLanguageCode()))
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Published language version not found");
         return detail(q, v);
     }
@@ -474,8 +479,8 @@ public class AcademicCatalogService {
         var media = questionMedia.findByQuestionVersionIdOrderByDisplayOrderAsc(v.getId()).stream()
                 .map(a -> a.getMediaAsset() == null ? null : mediaAssets.findById(a.getMediaAsset().getId()).map(x -> new bd.hscsolution.media.MediaDtos.MediaAssetResponse(
                         x.getId(), a.attachmentRole, a.displayOrder, x.caption, x.altText,
-                        x.width == null ? 0 : x.width, x.height == null ? 0 : x.height,
-                        x.byteSize, x.mimeType, x.checksumSha256,
+                        x.getWidth() == null ? 0 : x.getWidth(), x.getHeight() == null ? 0 : x.getHeight(),
+                        x.getByteSize(), x.getMimeType(), x.getChecksumSha256(),
                         x.getLifecycleState() != null ? x.getLifecycleState().name() : "PENDING",
                         ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/media/").path(x.getId().toString()).toUriString(),
                         mediaAssets.questionUsage(x.getId()) + mediaAssets.stepUsage(x.getId()))).orElse(null))
@@ -507,11 +512,11 @@ public class AcademicCatalogService {
                                             a.displayOrder,
                                             m.caption,
                                             m.altText,
-                                            m.width == null ? 0 : m.width,
-                                            m.height == null ? 0 : m.height,
-                                            m.byteSize,
-                                            m.mimeType,
-                                            m.checksumSha256,
+                                            m.getWidth() == null ? 0 : m.getWidth(),
+                                            m.getHeight() == null ? 0 : m.getHeight(),
+                                            m.getByteSize(),
+                                            m.getMimeType(),
+                                            m.getChecksumSha256(),
                                             m.lifecycleState != null ? m.lifecycleState.name() : null, // <-- এখানে সমাধান করা হয়েছে
                                             "/api/v1/media/" + m.getId(),
                                             mediaAssets.questionUsage(m.getId()) + mediaAssets.stepUsage(m.getId())))

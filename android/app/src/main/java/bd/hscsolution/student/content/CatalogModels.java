@@ -48,5 +48,5 @@ public final class CatalogModels {
     public record SolutionStep(String id, int stepNo, String title, String body, List<MediaAsset> media) {}
     public record MediaAsset(String id, String attachmentRole, int displayOrder, String caption, String altText,
                              int width, int height, long byteSize, String mimeType, String checksumSha256,
-                             String lifecycleState, @SerializedName("deliveryUrl") String deliveryPath, long usageCount) {}
+                             String lifecycleState, @SerializedName("deliveryUrl") String deliveryPath, long usageCount, String localPath) {}
 }

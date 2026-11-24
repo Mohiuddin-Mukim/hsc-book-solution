@@ -69,4 +69,12 @@ public interface ContentApi {
     // Kept for the Phase 8 contract smoke test.
     @GET("catalog/questions/{id}")
     Call<JsonObject> questionJson(@Path("id") String id, @Query("language") String language);
+
+    @retrofit2.http.GET("student/offline/manifests/chapters/{chapterId}")
+    Call<bd.hscsolution.student.offline.OfflineModels.ManifestResponse> offlineChapter(
+            @Path("chapterId") String chapterId, @Query("language") String language);
+
+    @retrofit2.http.GET("student/offline/manifests/books/{bookId}")
+    Call<bd.hscsolution.student.offline.OfflineModels.ManifestResponse> offlineBook(
+            @Path("bookId") String bookId, @Query("language") String language);
 }

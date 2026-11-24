@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 
 public final class SafeMathWebView extends WebView {
     private static final String MATHJAX =
-            "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js";
+            "file:///android_asset/mathjax/tex-chtml.js";
 
     public SafeMathWebView(@NonNull Context c) { super(c); init(); }
     public SafeMathWebView(@NonNull Context c, @Nullable AttributeSet a) { super(c, a); init(); }
@@ -28,7 +28,7 @@ public final class SafeMathWebView extends WebView {
         WebSettings s = getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(false);
-        s.setAllowFileAccess(false);
+        s.setAllowFileAccess(true);
         s.setAllowContentAccess(false);
         s.setAllowFileAccessFromFileURLs(false);
         s.setAllowUniversalAccessFromFileURLs(false);
@@ -68,7 +68,7 @@ public final class SafeMathWebView extends WebView {
                 + ".math{overflow-x:auto} code{font-family:monospace}</style>"
                 + "</head><body><div id='content'>" + safe + "</div>"
                 + "</body></html>";
-        loadDataWithBaseURL("https://reader.invalid/", html, "text/html", "UTF-8", null);
+        loadDataWithBaseURL("file:///android_asset/mathjax/", html, "text/html", "UTF-8", null);
     }
 
     @Override protected void onDetachedFromWindow() {

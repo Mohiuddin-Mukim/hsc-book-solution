@@ -30,6 +30,10 @@ public final class HomeFragment extends Fragment {
 
         view.findViewById(R.id.searchButton).setOnClickListener(v ->
                 Navigation.findNavController(view).navigate(R.id.action_home_to_search));
+
+        view.findViewById(R.id.offlineButton).setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_home_to_offline_downloads));
+
         TextView network = view.findViewById(R.id.networkState);
         ProgressBar progress = view.findViewById(R.id.catalogProgress);
         TextView error = view.findViewById(R.id.catalogError);

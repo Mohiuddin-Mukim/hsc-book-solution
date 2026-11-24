@@ -24,6 +24,12 @@ public final class CatalogViewModel extends ViewModel {
         run(() -> repository.questions(chapterId, type, difficulty, minMarks, maxMarks, page, 20));
     }
 
+    public void offlineQuestions(String manifestId, String language, String type, String difficulty,
+                                 String minMarks, String maxMarks, int page) {
+        run(() -> repository.offlineQuestionsForManifest(
+                manifestId, language, page, 20, type, difficulty, minMarks, maxMarks));
+    }
+
     private void run(Task task) {
         state.postValue(new CatalogState.Loading());
         executor.execute(() -> {

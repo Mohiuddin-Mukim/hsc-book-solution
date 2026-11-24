@@ -18,7 +18,7 @@ public final class AppContainer {
         authManager = new AuthManager(context);
         AuthApi authApi = apiClient.authApi();
         authRepository = new AuthRepository(authApi, authManager);
-        contentRepository = new bd.hscsolution.student.content.ContentRepository(apiClient);
         database = AppDatabase.get(context);
+        contentRepository = new bd.hscsolution.student.content.ContentRepository(apiClient, database);
     }
 }

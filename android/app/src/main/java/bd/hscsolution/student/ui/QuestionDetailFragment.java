@@ -141,7 +141,7 @@ public final class QuestionDetailFragment extends Fragment {
             image.setLayoutParams(new LinearLayout.LayoutParams(-1, Math.max(180, Math.min(620, width))));
             image.setContentDescription(m.altText()==null? "Solution figure":m.altText());
             image.setAdjustViewBounds(true);
-            Glide.with(this).load(resolve(m.deliveryPath()))
+            Glide.with(this).load(resolve(m.localPath()!=null && !m.localPath().isBlank() ? m.localPath() : m.deliveryPath()))
                     .override(1600,1600).fitCenter().placeholder(R.drawable.bg_media_placeholder)
                     .error(R.drawable.bg_media_error).into(image);
             content.addView(image);
@@ -154,8 +154,14 @@ public final class QuestionDetailFragment extends Fragment {
     }
 
     private String resolve(String path) {
-        return path == null ? "" : (path.startsWith("http") ? path :
-                bd.hscsolution.student.BuildConfig.API_BASE_URL.replace("/api/v1/","") + path);
+        if (path == null || path.isBlank()) return "";
+        // Offline manifests rewrite media delivery URLs to file:// URIs.
+        // Never prepend the API host to a local URI or an existing absolute path.
+        if (path.startsWith("file://") || path.startsWith("content://")) return path;
+        if (path.startsWith("http://") || path.startsWith("https://")) return path;
+        java.io.File local = new java.io.File(path);
+        if (local.isAbsolute() && local.exists()) return path;
+        return bd.hscsolution.student.BuildConfig.API_BASE_URL.replace("/api/v1/","") + path;
     }
 
     private void restorePosition() {

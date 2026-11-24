@@ -1,6 +1,7 @@
 package bd.hscsolution.api;
 
 import bd.hscsolution.imports.ImportProperties;
+import bd.hscsolution.offline.OfflineProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -16,10 +17,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "bd.hscsolution.catalog.repository", // 👈 আপনার নতুন ক্যাটালগ রিপোজিটরি স্ক্যান করবে
         "bd.hscsolution.media",
         "bd.hscsolution.auth",               // (যদি থাকে) আপনার অথ রিপোজিটরি স্ক্যান করবে
-        "bd.hscsolution.security"            // (যদি থাকে) আপনার সিকিউরিটি রিপোজিটরি স্ক্যান করবে
+        "bd.hscsolution.security",            // (যদি থাকে) আপনার সিকিউরিটি রিপোজিটরি স্ক্যান করবে
+        "bd.hscsolution.offline"
 })
 @EntityScan(basePackages = "bd.hscsolution")
-@EnableConfigurationProperties(ImportProperties.class)
+@EnableConfigurationProperties({ImportProperties.class, OfflineProperties.class})
 public class HscApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(HscApiApplication.class, args);

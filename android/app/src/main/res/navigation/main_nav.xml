@@ -22,6 +22,12 @@
             app:popUpTo="@id/homeFragment" app:popUpToInclusive="true"/>
         <action android:id="@+id/action_home_to_papers" app:destination="@id/paperFragment"/>
         <action android:id="@+id/action_home_to_search" app:destination="@id/searchFragment"/>
+        <action android:id="@+id/action_home_to_offline_downloads" app:destination="@id/offlineDownloadsFragment"/>
+    </fragment>
+
+    <fragment android:id="@+id/offlineDownloadsFragment"
+        android:name="bd.hscsolution.student.ui.OfflineDownloadsFragment" android:label="Offline downloads">
+        <action android:id="@+id/action_offline_downloads_to_questions" app:destination="@id/questionListFragment"/>
     </fragment>
 
     <fragment android:id="@+id/paperFragment"
@@ -54,8 +60,9 @@
 
     <fragment android:id="@+id/questionListFragment"
         android:name="bd.hscsolution.student.ui.QuestionListFragment" android:label="Questions">
-        <argument android:name="chapterId" app:argType="string"/>
-        <argument android:name="chapterName" app:argType="string"/>
+        <argument android:name="chapterId" app:argType="string" app:nullable="true"/>
+        <argument android:name="chapterName" app:argType="string" app:nullable="true"/>
+        <argument android:name="offlineManifestId" app:argType="string" app:nullable="true"/>
         <action android:id="@+id/action_question_list_to_detail" app:destination="@id/questionDetailFragment"/>
     </fragment>
 

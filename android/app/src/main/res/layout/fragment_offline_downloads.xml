@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/surface">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Offline downloads"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:textSize="26sp"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/offlineStorageSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Storage used: calculating..."
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        android:paddingBottom="16dp"/>
+
+    <ProgressBar
+        android:id="@+id/offlineProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/offlineEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No downloaded content yet. Download a chapter from its chapter list."
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:padding="24dp"
+        android:visibility="gone"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/offlinePackageContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+    </ScrollView>
+</LinearLayout>
