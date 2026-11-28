@@ -1,9 +1,32 @@
 import { useEffect, useRef, useState } from "react";
-import { adminPlans, createPlan, updatePlan, type Plan } from "../api/commerce";
+import {
+  adminPlans,
+  createPlan,
+  setFreeChapter,
+  updatePlan,
+  type Plan,
+} from "../api/commerce";
 
 const money = (n: number) => `৳${((Number(n) || 0) / 100).toFixed(2)}`;
 
-const INITIAL_FORM = {
+interface PlanFormState {
+  code: string;
+  name: string;
+  planType: string;
+  resourceType: string | null;
+  resourceId: string | null;
+  originalPriceMinor: number;
+  salePriceMinor: number;
+  durationDays: number;
+  currency: string;
+  description: string;
+  active: boolean;
+  bookIds: string[];
+  freeBookId: string;
+  freeChapterId: string;
+}
+
+const INITIAL_FORM: PlanFormState = {
   code: "",
   name: "",
   planType: "CHAPTER",
@@ -15,10 +38,18 @@ const INITIAL_FORM = {
   currency: "BDT",
   description: "",
   active: true,
-  bookIds: [] as string[],
+  bookIds: [],
   freeBookId: "",
   freeChapterId: "",
 };
+
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "object" && err !== null && "message" in err) {
+    return String((err as { message: unknown }).message);
+  }
+  return fallback;
+}
 
 export default function CommercePage() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -27,7 +58,7 @@ export default function CommercePage() {
   const [msgType, setMsgType] = useState<"success" | "error">("success");
   const [saving, setSaving] = useState(false);
   const [savingFree, setSavingFree] = useState(false);
-  const [f, setF] = useState<any>(INITIAL_FORM);
+  const [f, setF] = useState<PlanFormState>(INITIAL_FORM);
 
   const formRef = useRef<HTMLDivElement | null>(null);
 
@@ -39,7 +70,7 @@ export default function CommercePage() {
   const load = () =>
     adminPlans()
       .then(setPlans)
-      .catch((e) => notify(e.message, "error"));
+      .catch((e: unknown) => notify(getErrorMessage(e, "Failed to load plans"), "error"));
 
   useEffect(() => {
     load();
@@ -52,7 +83,7 @@ export default function CommercePage() {
 
   const resetOfferForm = () => {
     setEditing(null);
-    setF((prev: any) => ({
+    setF((prev) => ({
       ...INITIAL_FORM,
       freeBookId: prev.freeBookId || "",
       freeChapterId: prev.freeChapterId || "",
@@ -72,8 +103,8 @@ export default function CommercePage() {
       notify(editing ? "Offer updated successfully" : "Saved successfully", "success");
       resetOfferForm();
       load();
-    } catch (e: any) {
-      notify(e.message || "Failed to save offer", "error");
+    } catch (e: unknown) {
+      notify(getErrorMessage(e, "Failed to save offer"), "error");
     } finally {
       setSaving(false);
     }
@@ -82,24 +113,38 @@ export default function CommercePage() {
   const handleSetFreeChapter = async () => {
     setSavingFree(true);
     try {
-      await (await import("../api/commerce")).setFreeChapter(
-        f.freeBookId,
-        f.freeChapterId
-      );
+      await setFreeChapter(f.freeBookId, f.freeChapterId);
       notify("Free chapter saved", "success");
-    } catch (e: any) {
-      notify(e.message || "Failed to set free chapter", "error");
+    } catch (e: unknown) {
+      notify(getErrorMessage(e, "Failed to set free chapter"), "error");
     } finally {
       setSavingFree(false);
     }
   };
 
   const startEdit = (p: Plan) => {
+    const planExtra = p as Plan & {
+      code?: string;
+      durationDays?: number;
+      resourceType?: string | null;
+      resourceId?: string | null;
+      currency?: string;
+      description?: string;
+      active?: boolean;
+      bookIds?: string[];
+    };
     setEditing(p);
-    setF((prev: any) => ({
+    setF((prev) => ({
       ...prev,
       ...p,
-      bookIds: p.bookIds || [],
+      code: planExtra.code ?? prev.code,
+      durationDays: planExtra.durationDays ?? prev.durationDays,
+      resourceType: planExtra.resourceType ?? p.planType,
+      resourceId: planExtra.resourceId ?? prev.resourceId,
+      currency: planExtra.currency ?? prev.currency,
+      description: planExtra.description ?? prev.description,
+      active: planExtra.active ?? prev.active,
+      bookIds: planExtra.bookIds ?? [],
     }));
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -169,6 +214,7 @@ export default function CommercePage() {
           <div className="cp-plan-grid">
             {plans.map((p) => {
               const isSelected = editing?.id === p.id;
+              const planExtra = p as Plan & { code?: string; durationDays?: number };
               return (
                 <article
                   className={`cp-plan-card ${isSelected ? "cp-plan-card-active" : ""}`}
@@ -184,7 +230,7 @@ export default function CommercePage() {
                   </div>
 
                   <h3 className="cp-plan-name">{p.name}</h3>
-                  {(p as any).code && <div className="cp-plan-code">{(p as any).code}</div>}
+                  {planExtra.code && <div className="cp-plan-code">{planExtra.code}</div>}
 
                   <div className="cp-plan-price">
                     <span className="cp-price-sale">{money(p.salePriceMinor)}</span>
@@ -195,7 +241,7 @@ export default function CommercePage() {
 
                   <div className="cp-plan-footer">
                     <span className="cp-muted">
-                      {(p as any).durationDays ? `${(p as any).durationDays} days` : "Standard"}
+                      {planExtra.durationDays ? `${planExtra.durationDays} days` : "Standard"}
                     </span>
                     <button
                       type="button"

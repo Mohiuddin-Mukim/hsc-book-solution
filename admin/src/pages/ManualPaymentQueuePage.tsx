@@ -6,6 +6,14 @@ import {
 
 const money=(n:number,c:string)=>`${c==="BDT"?"৳":c+" "}${(Number(n)/100).toFixed(2)}`;
 
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "object" && err !== null && "message" in err) {
+    return String((err as { message: unknown }).message);
+  }
+  return fallback;
+}
+
 export default function ManualPaymentQueuePage(){
   const [items,setItems]=useState<ManualPayment[]>([]);
   const [status,setStatus]=useState("PENDING");
@@ -15,7 +23,7 @@ export default function ManualPaymentQueuePage(){
   const [action,setAction]=useState<"APPROVE"|"REJECT"|null>(null);
   const [message,setMessage]=useState("");
 
-  const load=()=>{setLoading(true);manualPayments(status).then(setItems).catch(e=>setError(e.message)).finally(()=>setLoading(false));};
+  const load=()=>{setLoading(true);manualPayments(status).then(setItems).catch((e:unknown)=>setError(getErrorMessage(e,"Failed to load queue"))).finally(()=>setLoading(false));};
   useEffect(load,[status]);
 
   async function submit(){
@@ -24,7 +32,7 @@ export default function ManualPaymentQueuePage(){
       if(action==="APPROVE") await approveManualPayment(selected.id,message);
       else await rejectManualPayment(selected.id,message);
       setSelected(null);setAction(null);setMessage("");load();
-    }catch(e:any){setError(e.message||"Action failed");}
+    }catch(e:unknown){setError(getErrorMessage(e,"Action failed"));}
   }
 
   return <div className="mq">

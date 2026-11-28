@@ -14,6 +14,14 @@ type Channel = {
   sortOrder: number;
 };
 
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "object" && err !== null && "message" in err) {
+    return String((err as { message: unknown }).message);
+  }
+  return fallback;
+}
+
 export default function ManualPaymentSettingsPage() {
   const [rows, setRows] = useState<Channel[]>([]);
   const [msg, setMsg] = useState("");
@@ -22,14 +30,14 @@ export default function ManualPaymentSettingsPage() {
   const load = () => {
     manualPaymentChannels()
       .then(setRows)
-      .catch((e: any) => setMsg(e?.message || "Failed to load channels"));
+      .catch((e: unknown) => setMsg(getErrorMessage(e, "Failed to load channels")));
   };
 
   useEffect(() => {
     load();
   }, []);
 
-  const update = (id: string, key: string, val: any) =>
+  const update = <K extends keyof Channel>(id: string, key: K, val: Channel[K]) =>
     setRows((r) => r.map((x) => (x.id === id ? { ...x, [key]: val } : x)));
 
   async function save(c: Channel) {
@@ -38,8 +46,8 @@ export default function ManualPaymentSettingsPage() {
     try {
       await updateManualPaymentChannel(c.id, c);
       setMsg(`${c.method} settings saved.`);
-    } catch (e: any) {
-      setMsg(e?.message || "Save failed");
+    } catch (e: unknown) {
+      setMsg(getErrorMessage(e, "Save failed"));
     } finally {
       setSaving("");
     }
