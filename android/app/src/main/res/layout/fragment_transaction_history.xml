@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/surface">
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="20dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="TRANSACTIONS" android:textSize="11sp" android:textStyle="bold"
+            android:textColor="@color/secondary" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" android:text="Transaction history"
+            android:textColor="@color/text_primary" android:textSize="26sp" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" android:text="Your payment and access records"
+            android:textColor="@color/text_secondary" android:textSize="14sp" />
+    </LinearLayout>
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/text_secondary" android:alpha="0.12"/>
+    <ProgressBar android:id="@+id/transactionProgress" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"/>
+    <TextView android:id="@+id/transactionError" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:padding="16dp" android:textColor="@color/error"
+        android:visibility="gone"/>
+    <TextView android:id="@+id/transactionEmpty" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:padding="32dp" android:gravity="center"
+        android:text="No transactions yet." android:textColor="@color/text_secondary"
+        android:visibility="gone"/>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:fillViewport="true" android:clipToPadding="false">
+        <LinearLayout android:id="@+id/transactionList" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="vertical"
+            android:padding="16dp"/>
+    </ScrollView>
+</LinearLayout>

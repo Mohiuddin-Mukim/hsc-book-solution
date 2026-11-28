@@ -21,10 +21,17 @@
         <action android:id="@+id/action_home_to_login" app:destination="@id/loginFragment"
             app:popUpTo="@id/homeFragment" app:popUpToInclusive="true"/>
         <action android:id="@+id/action_home_to_papers" app:destination="@id/paperFragment"/>
+        <action android:id="@+id/action_home_to_plans" app:destination="@id/plansFragment"/>
         <action android:id="@+id/action_home_to_search" app:destination="@id/searchFragment"/>
         <action android:id="@+id/action_home_to_offline_downloads" app:destination="@id/offlineDownloadsFragment"/>
+        <action android:id="@+id/action_home_to_transactions" app:destination="@id/transactionHistoryFragment"/>
     </fragment>
 
+
+    <fragment android:id="@+id/plansFragment" android:name="bd.hscsolution.student.ui.PlansFragment" android:label="Plans and offers">
+        <action android:id="@+id/action_plans_to_transactions" app:destination="@id/transactionHistoryFragment"/>
+    </fragment>
+    <fragment android:id="@+id/transactionHistoryFragment" android:name="bd.hscsolution.student.ui.TransactionHistoryFragment" android:label="Transaction history"/>
     <fragment android:id="@+id/offlineDownloadsFragment"
         android:name="bd.hscsolution.student.ui.OfflineDownloadsFragment" android:label="Offline downloads">
         <action android:id="@+id/action_offline_downloads_to_questions" app:destination="@id/questionListFragment"/>

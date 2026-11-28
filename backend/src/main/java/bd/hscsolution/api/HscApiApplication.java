@@ -5,10 +5,9 @@ import bd.hscsolution.offline.OfflineProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import bd.hscsolution.imports.ImportProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = "bd.hscsolution")
@@ -22,6 +21,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 })
 @EntityScan(basePackages = "bd.hscsolution")
 @EnableConfigurationProperties({ImportProperties.class, OfflineProperties.class})
+@ConfigurationPropertiesScan("bd.hscsolution")
 public class HscApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(HscApiApplication.class, args);

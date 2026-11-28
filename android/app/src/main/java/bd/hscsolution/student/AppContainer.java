@@ -12,6 +12,7 @@ public final class AppContainer {
     public final AuthRepository authRepository;
     public final AppDatabase database;
     public final bd.hscsolution.student.content.ContentRepository contentRepository;
+    public final bd.hscsolution.student.commerce.CommerceRepository commerceRepository;
 
     public AppContainer(Context context) {
         ApiClient apiClient = new ApiClient(context);
@@ -20,5 +21,6 @@ public final class AppContainer {
         authRepository = new AuthRepository(authApi, authManager);
         database = AppDatabase.get(context);
         contentRepository = new bd.hscsolution.student.content.ContentRepository(apiClient, database);
+        commerceRepository = new bd.hscsolution.student.commerce.CommerceRepository(apiClient);
     }
 }

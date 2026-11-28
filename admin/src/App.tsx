@@ -12,6 +12,9 @@ import MediaLibraryPage from "./pages/MediaLibraryPage";
 import GenericAdminPage from "./pages/GenericAdminPage";
 import CatalogPage from "./pages/CatalogPage";
 import ImportsPage from "./pages/ImportsPage";
+import CommercePage from "./pages/CommercePage";
+import ManualPaymentQueuePage from "./pages/ManualPaymentQueuePage";
+import ManualPaymentSettingsPage from "./pages/ManualPaymentSettingsPage";
 
 export default function App() {
   return (
@@ -61,6 +64,18 @@ export default function App() {
             >
               <Route
                 path="/payments"
+                element={<CommercePage />}
+              />
+              <Route
+                path="/payments/manual"
+                element={<ManualPaymentQueuePage />}
+              />
+              <Route
+                path="/payments/manual-settings"
+                element={<ManualPaymentSettingsPage />}
+              />
+              <Route
+                path="/payments-legacy"
                 element={
                   <GenericAdminPage
                     title="Payments"

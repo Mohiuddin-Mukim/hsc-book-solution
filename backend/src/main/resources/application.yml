@@ -35,7 +35,7 @@ hsc:
     jwt-secret: ${JWT_SECRET:change-this-local-development-secret-to-a-long-random-value-please-mohiuddinmukimmmmm}
     access-token-minutes: ${JWT_ACCESS_MINUTES:15}
     refresh-token-days: ${JWT_REFRESH_DAYS:30}
-    cors-origins: ${CORS_ORIGINS:http://localhost:5173}
+    cors-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:5174}
     bootstrap-admin-email: ${BOOTSTRAP_ADMIN_EMAIL:superadmin15@gmail.com}
     bootstrap-admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:SuperAdmin@123#}
     bootstrap-admin-name: ${BOOTSTRAP_ADMIN_NAME:Super Admin}
@@ -82,3 +82,18 @@ offline:
   math-asset-path: /android_asset/mathjax/tex-chtml.js
   math-asset-bytes: ${OFFLINE_MATH_ASSET_BYTES:1160989}
   math-asset-sha256: ${OFFLINE_MATH_ASSET_SHA256:fd78b0bbfee93895ff85906f486c072671bb1598e4858129b65f1adcc607bf87}
+
+commerce:
+  provider: ${COMMERCE_PROVIDER:sandbox}
+  shurjopay:
+    base-url: ${SHURJOPAY_BASE_URL:https://sandbox.shurjopayment.com/api}
+    username: ${SHURJOPAY_USERNAME:}
+    password: ${SHURJOPAY_PASSWORD:}
+    prefix: ${SHURJOPAY_PREFIX:}
+    return-url: ${SHURJOPAY_RETURN_URL:http://localhost:8080/payment/return}
+    cancel-url: ${SHURJOPAY_CANCEL_URL:http://localhost:8080/payment/cancel}
+
+  manual:
+    portal-base-url: ${MANUAL_PAYMENT_PORTAL_BASE_URL:http://localhost:5174}
+    support-whatsapp-url: ${MANUAL_PAYMENT_SUPPORT_WHATSAPP_URL:}
+    portal-ttl-minutes: ${MANUAL_PAYMENT_PORTAL_TTL_MINUTES:30}

@@ -10,6 +10,7 @@ import bd.hscsolution.student.auth.AuthViewModel;
 import bd.hscsolution.student.auth.AuthViewModelFactory;
 import bd.hscsolution.student.auth.SessionEvents;
 import bd.hscsolution.student.offline.WorkScheduler;
+import bd.hscsolution.student.theme.ThemeManager;
 
 public final class MainActivity extends AppCompatActivity {
     private AuthViewModel authViewModel;
@@ -18,6 +19,7 @@ public final class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        ThemeManager.apply(this);
         setContentView(R.layout.activity_main);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()

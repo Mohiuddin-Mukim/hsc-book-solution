@@ -10,7 +10,9 @@ const items = [
   { to: "/review", label: "Review Queue", perm: "CONTENT_REVIEW" },
   { to: "/imports", label: "Imports", perm: "CONTENT_CREATE" },
   { to: "/users", label: "Users & Devices", perm: "USER_READ" },
-  { to: "/payments", label: "Payments", perm: "ENTITLEMENT_ADJUST" },
+  { to: "/payments", label: "Plans & Payments", perm: "ENTITLEMENT_ADJUST" },
+  { to: "/payments/manual", label: "Manual Payment Queue", perm: "ENTITLEMENT_ADJUST" },
+  { to: "/payments/manual-settings", label: "MFS Payment Settings", perm: "ENTITLEMENT_ADJUST" },
   { to: "/analytics", label: "Analytics", perm: "ANALYTICS_READ" },
   { to: "/settings", label: "Settings", perm: "ROLE_MANAGE" },
 ];

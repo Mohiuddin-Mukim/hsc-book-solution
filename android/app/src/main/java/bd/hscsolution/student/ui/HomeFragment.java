@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -20,6 +21,8 @@ import bd.hscsolution.student.content.CatalogModels;
 import bd.hscsolution.student.content.CatalogState;
 import bd.hscsolution.student.content.CatalogViewModel;
 import bd.hscsolution.student.content.CatalogViewModelFactory;
+import bd.hscsolution.student.commerce.CommerceViewModel;
+import bd.hscsolution.student.commerce.CommerceViewModelFactory;
 import java.util.List;
 
 public final class HomeFragment extends Fragment {
@@ -31,8 +34,13 @@ public final class HomeFragment extends Fragment {
         view.findViewById(R.id.searchButton).setOnClickListener(v ->
                 Navigation.findNavController(view).navigate(R.id.action_home_to_search));
 
+        view.findViewById(R.id.plansButton).setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_home_to_plans));
+
         view.findViewById(R.id.offlineButton).setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_home_to_offline_downloads));
+
+        view.findViewById(R.id.transactionHistoryButton).setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_home_to_transactions));
 
         TextView network = view.findViewById(R.id.networkState);
         ProgressBar progress = view.findViewById(R.id.catalogProgress);
@@ -53,6 +61,16 @@ public final class HomeFragment extends Fragment {
         AuthViewModel authVm = new ViewModelProvider(requireActivity(),
                 new AuthViewModelFactory(container.authRepository)).get(AuthViewModel.class);
         view.findViewById(R.id.logoutButton).setOnClickListener(v -> authVm.logout());
+
+        CommerceViewModel commerceVm = new ViewModelProvider(this,
+                new CommerceViewModelFactory(container.commerceRepository)).get(CommerceViewModel.class);
+        commerceVm.notifications().observe(getViewLifecycleOwner(), notes -> {
+            if (notes == null || notes.isEmpty()) return;
+            var n = notes.get(0);
+            Toast.makeText(requireContext(), n.title() + ": " + n.message(), Toast.LENGTH_LONG).show();
+            commerceVm.markNotificationRead(n.id());
+        });
+        commerceVm.loadNotifications();
 
         CatalogViewModel catalogVm = new ViewModelProvider(this,
                 new CatalogViewModelFactory(container.contentRepository)).get(CatalogViewModel.class);

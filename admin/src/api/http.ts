@@ -55,3 +55,5 @@ export async function me() {
   const r = await raw("/auth/me");
   return r.json() as Promise<AuthUser>;
 }
+
+export async function rawJson<T=unknown>(path:string, init:RequestInit={}){ const r=await raw(path,init,true); return r.json() as Promise<T>; }

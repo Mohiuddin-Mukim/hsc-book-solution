@@ -3,10 +3,13 @@ package bd.hscsolution.catalog.controller;
 import bd.hscsolution.catalog.dto.ContentPageResponse;
 import bd.hscsolution.catalog.dto.PublicCatalogDtos;
 import bd.hscsolution.catalog.service.AcademicCatalogService;
+import bd.hscsolution.commerce.ContentAccessService;
+import bd.hscsolution.security.AuthPrincipal;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -18,9 +21,11 @@ import static bd.hscsolution.catalog.entity.AcademicEnums.*;
 @RequestMapping("/api/v1/catalog")
 public class PublicCatalogController {
     private final AcademicCatalogService s;
+    private final ContentAccessService access;
 
-    public PublicCatalogController(AcademicCatalogService s) {
+    public PublicCatalogController(AcademicCatalogService s, ContentAccessService access) {
         this.s = s;
+        this.access = access;
     }
 
     private <T> ResponseEntity<ContentPageResponse<T>> page(Page<T> data) {
@@ -84,7 +89,9 @@ public class PublicCatalogController {
             @RequestParam(required = false) BigDecimal minMarks,
             @RequestParam(required = false) BigDecimal maxMarks,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal AuthPrincipal principal) {
+        access.requireChapter(chapterId, principal);
         return page(s.publicQuestions(chapterId, type, difficulty, minMarks, maxMarks, page, size));
     }
 
@@ -100,15 +107,19 @@ public class PublicCatalogController {
             @RequestParam(required = false) BigDecimal minMarks,
             @RequestParam(required = false) BigDecimal maxMarks,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal AuthPrincipal principal) {
+        access.requireChapter(chapterId, principal);
         return page(s.publicQuestions(chapterId, type, difficulty, minMarks, maxMarks, page, size));
     }
 
     @GetMapping("/questions/{id}")
     public ResponseEntity<bd.hscsolution.catalog.dto.AcademicDtos.QuestionDetail> question(
             @PathVariable UUID id,
-            @RequestParam(defaultValue = "bn") String language) {
+            @RequestParam(defaultValue = "bn") String language,
+            @AuthenticationPrincipal AuthPrincipal principal) {
         var d = s.publicDetail(id, language);
+        access.requireChapter(d.chapterId(), principal);
         String etag = "\"q-" + d.id() + "-" + (d.version() == null ? "0" : d.version().id()) + "\"";
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS).cachePublic())

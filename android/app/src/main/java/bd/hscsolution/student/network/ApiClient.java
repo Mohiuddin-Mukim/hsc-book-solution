@@ -32,4 +32,6 @@ public final class ApiClient {
     }
     public AuthApi authApi() { return retrofit.create(AuthApi.class); }
     public ContentApi contentApi() { return retrofit.create(ContentApi.class); }
+
+    public bd.hscsolution.student.commerce.CommerceApi commerceApi(){ return retrofit.create(bd.hscsolution.student.commerce.CommerceApi.class); }
 }
